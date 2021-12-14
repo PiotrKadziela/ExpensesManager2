@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_horizontal"
+    tools:context=".MainActivity">
+
+        <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="ADD"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="20px"
+            android:layout_marginBottom="50dp"/>
+        <Button
+            android:id="@+id/btnShow"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="SHOW"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="20px"
+            android:layout_marginBottom="50dp"/>
+
+
+</LinearLayout>
