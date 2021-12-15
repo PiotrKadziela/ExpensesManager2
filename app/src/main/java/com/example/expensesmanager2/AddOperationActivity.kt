@@ -36,16 +36,7 @@ class AddOperationActivity : AppCompatActivity() {
         }
 
         val options = resources.getStringArray(R.array.Categories)
-        spCategory.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
-
-        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                Toast.makeText(getParent(), "Operation added!", Toast.LENGTH_SHORT).show()
-            }
-
-        }
+        loadCategoriesSpinner(options)
     }
 
     private fun loadAddView() {
@@ -71,17 +62,10 @@ class AddOperationActivity : AppCompatActivity() {
         }
         val category = intent.getStringExtra("oprCategory")
         val type = intent.getIntExtra("oprType", 0)
+
         val options = resources.getStringArray(R.array.Categories)
-        spCategory.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
+        loadCategoriesSpinner(options)
 
-        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                Toast.makeText(getParent(), "Operation added!", Toast.LENGTH_SHORT).show()
-            }
-
-        }
         if(type == 0){
             rbExpense.isChecked = true
         }
@@ -93,20 +77,20 @@ class AddOperationActivity : AppCompatActivity() {
         spCategory.setSelection(options.indexOf(category))
     }
 
+    private fun loadCategoriesSpinner(options: Array<String>) {
+        spCategory.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, options)
+        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
     private fun updateOperation() {
         val title = etTitle.text.toString()
         var cost = etCost.text.toString().toDouble()
         val category = spCategory.selectedItem.toString()
         val id = intent.getIntExtra("oprId", 0)
-        val selectedOption: Int = rgType.checkedRadioButtonId
-        val radioButton: RadioButton = findViewById(selectedOption)
-        val type: Int
-
-        when (radioButton.text){
-            "Expense" -> type = 0
-            "Income" -> type = 1
-            else -> type = 0
-        }
+        val type = getTypeID()
 
         if(type == 0 && cost > 0 || type == 1 && cost < 0){
             cost = cost * -1
@@ -120,19 +104,23 @@ class AddOperationActivity : AppCompatActivity() {
         Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
     }
 
+    private fun getTypeID(): Int {
+        val selectedOption: Int = rgType.checkedRadioButtonId
+        val radioButton: RadioButton = findViewById(selectedOption)
+        val type = when (radioButton.text){
+            "Expense" -> 0
+            "Income" -> 1
+            else -> 0
+        }
+
+        return type
+    }
+
     private fun addOperation() {
         val title = etTitle.text.toString()
         var cost = etCost.text.toString().toDouble()
         val category = spCategory.selectedItem.toString()
-        val selectedOption: Int = rgType.checkedRadioButtonId
-        val radioButton: RadioButton = findViewById(selectedOption)
-        val type: Int
-
-        when (radioButton.text){
-            "Expense" -> type = 0
-            "Income" -> type = 1
-            else -> type = 0
-        }
+        val type = getTypeID()
 
         if(type == 0){
             cost = cost * -1

@@ -9,12 +9,14 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import androidx.core.content.contentValuesOf
 import java.lang.Exception
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object{
 
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 8
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val ID = "_id"
@@ -41,7 +43,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(TITLE, opr.title)
-        contentValues.put(COST, opr.cost)
+        contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
         contentValues.put(CATEGORY, opr.category)
         contentValues.put(TYPE, opr.type)
 
@@ -96,7 +98,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         val contentValues = ContentValues()
         contentValues.put(ID, opr.id)
         contentValues.put(TITLE, opr.title)
-        contentValues.put(COST, opr.cost)
+        contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
         contentValues.put(CATEGORY, opr.category)
         contentValues.put(TYPE, opr.type)
 
