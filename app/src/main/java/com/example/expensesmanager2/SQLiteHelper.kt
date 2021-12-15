@@ -16,10 +16,13 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object{
 
-        private const val DATABASE_VERSION = 8
+        private const val DATABASE_VERSION = 10
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
+        private const val TBL_CONFIG = "configuration"
         private const val ID = "_id"
+        private const val NAME = "name"
+        private const val VALUE = "value"
         private const val TITLE = "title"
         private const val COST = "cost"
         private const val CATEGORY = "category"
@@ -32,6 +35,13 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
                 + ID + " INTEGER PRIMARY KEY, " + TITLE + " TEXT,"
                 + COST + " NUMERIC," + CATEGORY + " TEXT," + TYPE + " INTEGER)")
         db?.execSQL(createTblOperations)
+        val createTblOperations2 = ("CREATE TABLE " + TBL_CONFIG + "("
+                + NAME + " TEXT PRIMARY KEY, " + VALUE + " NUMERIC)")
+        db?.execSQL(createTblOperations2)
+        val contentValues = ContentValues()
+        contentValues.put(NAME, "saldo")
+        contentValues.put(COST, 0.00)
+        db?.insert(TBL_OPERATIONS, null, contentValues)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -52,6 +62,34 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         return success
     }
 
+    @SuppressLint("Range")
+    fun getSaldo(): Double {
+        val selectQuery = "SELECT $VALUE FROM $TBL_CONFIG WHERE $NAME = \"saldo\""
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return 0.00
+        }
+
+        val saldo: Double
+
+        if (cursor.moveToFirst()){
+            saldo = cursor.getDouble(cursor.getColumnIndex(VALUE))
+        }
+        else {
+            saldo = 0.00
+        }
+        cursor.close()
+
+        return saldo
+    }
 
     @SuppressLint("Range")
     fun getAllOperations(): ArrayList<OperationModel>{
