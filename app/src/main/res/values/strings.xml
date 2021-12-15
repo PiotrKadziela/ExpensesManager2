@@ -1,12 +1,14 @@
 <resources>
     <string name="app_name">ExpensesManager2</string>
-    <string name="add_activity_header">ADD EXPENSE / INCOME</string>
+    <string name="add_activity_header">ADD OPERATION</string>
     <string name="cost">Cost</string>
     <string name="title">Title</string>
     <string name="add">ADD</string>
     <string name="edit_activity_header">EDIT OPERATION</string>
     <string name="edit">EDIT</string>
     <string name="category">CATEGORY</string>
+    <string name="expense">Expense</string>
+    <string name="income">Income</string>
 
     <string-array name="Categories">
         <item>Cat1</item>

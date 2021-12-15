@@ -7,6 +7,7 @@
     tools:context=".AddOperationActivity">
 
     <TextView
+        android:id="@+id/txtHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_activity_header"
@@ -15,6 +16,25 @@
         android:layout_marginTop="20dp"
         android:textSize="20sp"/>
 
+    <RadioGroup
+        android:id="@+id/rgType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+        <RadioButton
+            android:id="@+id/rbExpense"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/expense"
+            />
+        <RadioButton
+            android:id="@+id/rbIncome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/income"/>
+    </RadioGroup>
+
     <EditText
         android:id="@+id/etCost"
         android:layout_width="match_parent"
@@ -22,7 +42,7 @@
         android:layout_margin="20dp"
         android:hint="@string/cost"
         android:importantForAutofill="no"
-        android:inputType="number" />
+        android:inputType="numberDecimal" />
 
     <EditText
         android:id="@+id/etTitle"
@@ -50,6 +70,12 @@
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:text="@string/add"/>
+
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:text="@string/edit"/>
 
     </LinearLayout>
 

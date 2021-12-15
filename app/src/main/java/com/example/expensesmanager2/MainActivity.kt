@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         btnAdd.setOnClickListener{
             val intent = Intent(this, AddOperationActivity::class.java)
+            intent.putExtra("edit", "false")
             startActivity(intent)
         }
 

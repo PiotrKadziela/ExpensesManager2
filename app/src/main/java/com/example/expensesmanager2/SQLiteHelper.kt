@@ -14,20 +14,21 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object{
 
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val ID = "_id"
         private const val TITLE = "title"
         private const val COST = "cost"
         private const val CATEGORY = "category"
+        private const val TYPE = "type"
 
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTblOperations = ("CREATE TABLE " + TBL_OPERATIONS + "("
                 + ID + " INTEGER PRIMARY KEY, " + TITLE + " TEXT,"
-                + COST + " NUMERIC," + CATEGORY + " TEXT)")
+                + COST + " NUMERIC," + CATEGORY + " TEXT," + TYPE + " INTEGER)")
         db?.execSQL(createTblOperations)
     }
 
@@ -42,6 +43,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, opr.cost)
         contentValues.put(CATEGORY, opr.category)
+        contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
         db.close()
@@ -60,7 +62,6 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-
         }catch (e: Exception){
             e.printStackTrace()
             db.execSQL(selectQuery)
@@ -69,21 +70,24 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
         var id: Int
         var title: String
-        var cost: String
+        var cost: Double
         var category: String
+        var type: Int
 
         if (cursor.moveToFirst()){
             do {
                 id = cursor.getInt(cursor.getColumnIndex("_id"))
                 title = cursor.getString(cursor.getColumnIndex("title"))
-                cost = cursor.getString(cursor.getColumnIndex("cost"))
+                cost = cursor.getDouble(cursor.getColumnIndex("cost"))
                 category = cursor.getString(cursor.getColumnIndex("category"))
+                type = cursor.getInt(cursor.getColumnIndex("type"))
 
-                val opr = OperationModel(id, title, cost, category)
+                val opr = OperationModel(id, title, cost, category, type)
                 oprList.add(opr)
             }while (cursor.moveToNext())
         }
 
+        cursor.close()
         return oprList
     }
 
@@ -94,6 +98,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, opr.cost)
         contentValues.put(CATEGORY, opr.category)
+        contentValues.put(TYPE, opr.type)
 
         val success = db.update(TBL_OPERATIONS, contentValues, "_id=" + opr.id, null)
         db.close()

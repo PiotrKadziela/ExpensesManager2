@@ -1,5 +1,6 @@
 package com.example.expensesmanager2
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ScrollCaptureCallback
 import android.view.View
@@ -49,7 +50,12 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
 
         fun bindView(opr: OperationModel){
             title.text = opr.title
-            cost.text = opr.cost
+            cost.text = opr.cost.toString()
+            if(opr.cost.toInt() < 0){
+                cost.setTextColor(Color.RED)
+            } else{
+                cost.setTextColor(Color.GREEN)
+            }
             category.text = opr.category
         }
     }

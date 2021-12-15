@@ -3,16 +3,20 @@ package com.example.expensesmanager2
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.strictmode.SqliteObjectLeakedViolation
 import android.view.View
 import android.widget.*
-import android.widget.AdapterView.OnItemSelectedListener
+import androidx.core.view.isVisible
 
 class AddOperationActivity : AppCompatActivity() {
     private lateinit var etTitle: EditText
     private lateinit var etCost: EditText
     private lateinit var btnAdd: Button
+    private lateinit var btnEdit: Button
+    private lateinit var txtHeader: TextView
     private lateinit var spCategory: Spinner
+    private lateinit var rgType: RadioGroup
+    private lateinit var rbExpense: RadioButton
+    private lateinit var rbIncome: RadioButton
     private lateinit var sql: SQLiteHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,22 +26,20 @@ class AddOperationActivity : AppCompatActivity() {
         initView()
         sql = SQLiteHelper(this)
 
-        btnAdd.setOnClickListener {
-            addOperation()
+        val isEdit = intent.getStringExtra("edit")
+
+        if(isEdit == "true"){
+            loadEditView()
+        }
+        else {
+            loadAddView()
         }
 
         val options = resources.getStringArray(R.array.Categories)
         spCategory.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
 
         spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-
-            }
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 Toast.makeText(getParent(), "Operation added!", Toast.LENGTH_SHORT).show()
@@ -46,23 +48,104 @@ class AddOperationActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadAddView() {
+        rbExpense.isChecked = true
+        btnEdit.isVisible = false
+        btnAdd.setOnClickListener {
+            addOperation()
+        }
+    }
+
+    private fun loadEditView() {
+        btnAdd.isVisible = false
+        txtHeader.setText(resources.getString(R.string.edit_activity_header))
+        setFieldsValues()
+        btnEdit.setOnClickListener { updateOperation() }
+    }
+
+    private fun setFieldsValues() {
+        val title = intent.getStringExtra("oprTitle")
+        var cost = intent.getDoubleExtra("oprCost", 0.0)
+        if(cost < 0) {
+            cost *= -1
+        }
+        val category = intent.getStringExtra("oprCategory")
+        val type = intent.getIntExtra("oprType", 0)
+        val options = resources.getStringArray(R.array.Categories)
+        spCategory.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
+
+        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Toast.makeText(getParent(), "Operation added!", Toast.LENGTH_SHORT).show()
+            }
+
+        }
+        if(type == 0){
+            rbExpense.isChecked = true
+        }
+        else{
+            rbIncome.isChecked = true
+        }
+        etTitle.setText(title)
+        etCost.setText(cost.toString())
+        spCategory.setSelection(options.indexOf(category))
+    }
+
+    private fun updateOperation() {
+        val title = etTitle.text.toString()
+        var cost = etCost.text.toString().toDouble()
+        val category = spCategory.selectedItem.toString()
+        val id = intent.getIntExtra("oprId", 0)
+        val selectedOption: Int = rgType.checkedRadioButtonId
+        val radioButton: RadioButton = findViewById(selectedOption)
+        val type: Int
+
+        when (radioButton.text){
+            "Expense" -> type = 0
+            "Income" -> type = 1
+            else -> type = 0
+        }
+
+        if(type == 0 && cost > 0 || type == 1 && cost < 0){
+            cost = cost * -1
+        }
+
+        val opr = OperationModel(id, title, cost, category, type)
+        sql.updateOperation(opr)
+        val intentList = Intent(this, OperationsActivity::class.java)
+        startActivity(intentList)
+        finish()
+        Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
+    }
+
     private fun addOperation() {
         val title = etTitle.text.toString()
-        val cost = etCost.text.toString()
+        var cost = etCost.text.toString().toDouble()
         val category = spCategory.selectedItem.toString()
+        val selectedOption: Int = rgType.checkedRadioButtonId
+        val radioButton: RadioButton = findViewById(selectedOption)
+        val type: Int
 
-        if(title.isEmpty() || cost.isEmpty()){
-            Toast.makeText(this, "Fill all fields", Toast.LENGTH_SHORT).show()
+        when (radioButton.text){
+            "Expense" -> type = 0
+            "Income" -> type = 1
+            else -> type = 0
+        }
+
+        if(type == 0){
+            cost = cost * -1
+        }
+
+        val opr = OperationModel(0, title, cost, category, type)
+        val status = sql.insertOperation(opr)
+
+        if (status > -1){
+            Toast.makeText(this, "Operation added!", Toast.LENGTH_SHORT).show()
+            clearEditTexts()
         } else{
-            val opr = OperationModel(0, title, cost, category)
-            val status = sql.insertOperation(opr)
-
-            if (status > -1){
-                Toast.makeText(this, "Operation added!", Toast.LENGTH_SHORT).show()
-                clearEditTexts()
-            } else{
-                Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show()
         }
 
         val intent = Intent(this, OperationsActivity::class.java)
@@ -80,6 +163,11 @@ class AddOperationActivity : AppCompatActivity() {
         etTitle = findViewById(R.id.etTitle)
         etCost = findViewById(R.id.etCost)
         btnAdd = findViewById(R.id.btnAdd)
+        btnEdit = findViewById(R.id.btnEdit)
         spCategory = findViewById(R.id.spCategory)
+        txtHeader = findViewById(R.id.txtHeader)
+        rgType = findViewById(R.id.rgType)
+        rbIncome = findViewById(R.id.rbIncome)
+        rbExpense = findViewById(R.id.rbExpense)
     }
 }

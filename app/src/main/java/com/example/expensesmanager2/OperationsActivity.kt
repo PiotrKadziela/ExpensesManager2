@@ -24,13 +24,14 @@ class OperationsActivity : AppCompatActivity() {
         getOperations()
 
         adapter?.setOnClickItem {
-            val intent = Intent(this, EditOperationActivity::class.java)
+            val intent = Intent(this, AddOperationActivity::class.java)
             intent.putExtra("oprId", it.id)
             intent.putExtra("oprTitle", it.title)
             intent.putExtra("oprCost", it.cost)
             intent.putExtra("oprCategory", it.category)
+            intent.putExtra("edit", "true")
+            intent.putExtra("oprType", it.type)
             startActivity(intent)
-            finish()
         }
 
         adapter?.setOnClickDeleteItem { deleteOperation(it.id)}
