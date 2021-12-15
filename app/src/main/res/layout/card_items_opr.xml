@@ -15,21 +15,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtTitle"
-            android:text="TITLE"/>
+            android:text="@string/title"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtCost"
-            android:text="COST"
-            android:textSize="25dp"/>
+            android:text="@string/cost"
+            android:textSize="25sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtCategory"
+            android:text="@string/category"
+            android:textSize="12sp"/>
     </LinearLayout>
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:text="DELETE"/>
+        android:text="DELETE"
+        android:layout_gravity="center_vertical"/>
 
 
 </LinearLayout>

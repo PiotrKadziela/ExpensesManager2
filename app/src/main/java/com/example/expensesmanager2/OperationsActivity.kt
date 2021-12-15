@@ -28,7 +28,9 @@ class OperationsActivity : AppCompatActivity() {
             intent.putExtra("oprId", it.id)
             intent.putExtra("oprTitle", it.title)
             intent.putExtra("oprCost", it.cost)
+            intent.putExtra("oprCategory", it.category)
             startActivity(intent)
+            finish()
         }
 
         adapter?.setOnClickDeleteItem { deleteOperation(it.id)}
@@ -41,8 +43,6 @@ class OperationsActivity : AppCompatActivity() {
     }
 
     private fun deleteOperation(id: Int) {
-        if(id == null) return
-
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)

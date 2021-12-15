@@ -44,11 +44,13 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
     class OperationViewHolder(var view: View): RecyclerView.ViewHolder(view){
         var title = view.findViewById<TextView>(R.id.txtTitle)
         var cost = view.findViewById<TextView>(R.id.txtCost)
+        var category = view.findViewById<TextView>(R.id.txtCategory)
         var btnDelete = view.findViewById<Button>(R.id.btnDelete)
 
         fun bindView(opr: OperationModel){
             title.text = opr.title
             cost.text = opr.cost
+            category.text = opr.category
         }
     }
 }

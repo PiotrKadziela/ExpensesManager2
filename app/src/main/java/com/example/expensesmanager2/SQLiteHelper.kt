@@ -14,19 +14,20 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object{
 
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val ID = "_id"
         private const val TITLE = "title"
         private const val COST = "cost"
+        private const val CATEGORY = "category"
 
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTblOperations = ("CREATE TABLE " + TBL_OPERATIONS + "("
                 + ID + " INTEGER PRIMARY KEY, " + TITLE + " TEXT,"
-                + COST + " NUMERIC)")
+                + COST + " NUMERIC," + CATEGORY + " TEXT)")
         db?.execSQL(createTblOperations)
     }
 
@@ -40,6 +41,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         val contentValues = ContentValues()
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, opr.cost)
+        contentValues.put(CATEGORY, opr.category)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
         db.close()
@@ -68,14 +70,16 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         var id: Int
         var title: String
         var cost: String
+        var category: String
 
         if (cursor.moveToFirst()){
             do {
                 id = cursor.getInt(cursor.getColumnIndex("_id"))
                 title = cursor.getString(cursor.getColumnIndex("title"))
                 cost = cursor.getString(cursor.getColumnIndex("cost"))
+                category = cursor.getString(cursor.getColumnIndex("category"))
 
-                val opr = OperationModel(id, title, cost)
+                val opr = OperationModel(id, title, cost, category)
                 oprList.add(opr)
             }while (cursor.moveToNext())
         }
@@ -89,6 +93,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(ID, opr.id)
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, opr.cost)
+        contentValues.put(CATEGORY, opr.category)
 
         val success = db.update(TBL_OPERATIONS, contentValues, "_id=" + opr.id, null)
         db.close()
