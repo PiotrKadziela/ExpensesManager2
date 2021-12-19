@@ -6,8 +6,6 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
-import androidx.core.content.contentValuesOf
 import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -16,7 +14,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
     companion object{
 
-        private const val DATABASE_VERSION = 10
+        private const val DATABASE_VERSION = 11
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -58,6 +56,18 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
+        db.close()
+        return success
+    }
+
+    fun insertSaldo(saldo: Double): Long{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(VALUE, saldo)
+        contentValues.put(NAME, "saldo")
+
+        val success = db.insert(TBL_CONFIG, null, contentValues)
+
         db.close()
         return success
     }

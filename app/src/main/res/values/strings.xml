@@ -11,6 +11,8 @@
     <string name="income">Income</string>
     <string name="saldo">SALDO</string>
     <string name="show">SHOW</string>
+    <string name="starting_saldo_header">WELCOME!!</string>
+    <string name="starting_saldo_hint">Enter starting saldo</string>
 
     <string-array name="Categories">
         <item>Cat1</item>
