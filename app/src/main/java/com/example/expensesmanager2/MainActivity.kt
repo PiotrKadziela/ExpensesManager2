@@ -3,11 +3,15 @@ package com.example.expensesmanager2
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.isDigitsOnly
+import kotlin.math.floor
 
 class MainActivity : AppCompatActivity() {
     private lateinit var btnAdd: Button
@@ -68,7 +72,22 @@ class MainActivity : AppCompatActivity() {
             show()
         }
 
+        etStartingSaldo.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val saldoString = etStartingSaldo.text.toString()
+                val splitedSaldo = saldoString.split('.')
+                val saldoDecimals = splitedSaldo.last()
+                if(saldoDecimals.length > 2 && splitedSaldo.size > 1){
+                    val decimalCost: Double = saldoString.toDouble()
+                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    etStartingSaldo.setText(roundedCost)
+                    etStartingSaldo.setSelection(etStartingSaldo.text.length)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
 
+        })
     }
 
     private fun initView() {

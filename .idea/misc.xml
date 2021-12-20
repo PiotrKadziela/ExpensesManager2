@@ -3,12 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/activity_add_operation.xml" value="0.36666666666666664" />
+        <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/activity_add_operation.xml" value="0.25" />
         <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/activity_edit_operation.xml" value="0.36666666666666664" />
         <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/activity_operations.xml" value="0.36666666666666664" />
         <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/add_starting_saldo_dialog.xml" value="0.33" />
         <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/card_items_opr.xml" value="0.35260416666666666" />
+        <entry key="..\:/AndroidStudioProjects/ExpensesManager2/app/src/main/res/layout/sadasd.xml" value="0.36666666666666664" />
       </map>
     </option>
   </component>

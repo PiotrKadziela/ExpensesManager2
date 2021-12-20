@@ -104,7 +104,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
     @SuppressLint("Range")
     fun getAllOperations(): ArrayList<OperationModel>{
         val oprList: ArrayList<OperationModel> = ArrayList()
-        val selectQuery = "SELECT * FROM $TBL_OPERATIONS ORDER BY _id DESC"
+        val selectQuery = "SELECT * FROM $TBL_OPERATIONS ORDER BY $ID DESC"
         val db = this.writableDatabase
 
         val cursor: Cursor?
