@@ -1,11 +1,16 @@
 package com.example.expensesmanager2
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.*
+import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
+import kotlin.math.floor
 
 class AddOperationActivity : AppCompatActivity() {
     private lateinit var etTitle: EditText
@@ -13,6 +18,7 @@ class AddOperationActivity : AppCompatActivity() {
     private lateinit var btnAdd: Button
     private lateinit var btnEdit: Button
     private lateinit var txtHeader: TextView
+    private lateinit var txtError: TextView
     private lateinit var spCategory: Spinner
     private lateinit var rgType: RadioGroup
     private lateinit var rbExpense: RadioButton
@@ -39,11 +45,39 @@ class AddOperationActivity : AppCompatActivity() {
         loadCategoriesSpinner(options)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadAddView() {
         rbExpense.isChecked = true
         btnEdit.isVisible = false
+        etCost.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val costString = etCost.text.toString()
+                val splitedCost = costString.split('.')
+                val costDecimals = splitedCost.last()
+                if(costDecimals.length > 2){
+                    val decimalCost: Double = costString.toDouble()
+                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    etCost.setText(roundedCost)
+                    etCost.setSelection(etCost.text.length)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+
+        })
         btnAdd.setOnClickListener {
-            addOperation()
+            if(etTitle.text.toString().length < 3){
+                txtError.setText("Too short title!")
+            }
+            else if(etTitle.text.toString().isDigitsOnly()) {
+                txtError.setText("Title cannot be a number!")
+            }
+            else if(etCost.text.toString().toDouble() <= 0) {
+                txtError.setText("Cost has to be bigger than 0!")
+            }
+            else {
+                addOperation()
+            }
         }
     }
 
@@ -51,7 +85,36 @@ class AddOperationActivity : AppCompatActivity() {
         btnAdd.isVisible = false
         txtHeader.setText(resources.getString(R.string.edit_activity_header))
         setFieldsValues()
-        btnEdit.setOnClickListener { updateOperation() }
+        etCost.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val costString = etCost.text.toString()
+                val splitedCost = costString.split('.')
+                val costDecimals = splitedCost.last()
+                if(costDecimals.length > 2 && splitedCost.size > 1){
+                    val decimalCost: Double = costString.toDouble()
+                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    etCost.setText(roundedCost)
+                    etCost.setSelection(etCost.text.length)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+
+        })
+        btnEdit.setOnClickListener {
+            if(etTitle.text.toString().length < 3){
+                txtError.setText("Too short title!")
+            }
+            else if(etTitle.text.toString().isDigitsOnly()) {
+                txtError.setText("Title cannot be a number!")
+            }
+            else if(etCost.text.toString().toDouble() <= 0) {
+                txtError.setText("Cost has to be bigger than 0!")
+            }
+            else {
+                updateOperation()
+            }
+        }
     }
 
     private fun setFieldsValues() {
@@ -154,6 +217,7 @@ class AddOperationActivity : AppCompatActivity() {
         btnEdit = findViewById(R.id.btnEdit)
         spCategory = findViewById(R.id.spCategory)
         txtHeader = findViewById(R.id.txtHeader)
+        txtError = findViewById(R.id.txtError)
         rgType = findViewById(R.id.rgType)
         rbIncome = findViewById(R.id.rbIncome)
         rbExpense = findViewById(R.id.rbExpense)
