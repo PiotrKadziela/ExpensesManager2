@@ -57,12 +57,6 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
-        contentValues.clear()
-
-        val newSaldo = round((getSaldo() + opr.cost) * 100) / 100
-        contentValues.put(VALUE, newSaldo.toDouble())
-        db.update(TBL_CONFIG, contentValues, "name=\"saldo\"", null)
-        db.close()
 
         return success
     }
