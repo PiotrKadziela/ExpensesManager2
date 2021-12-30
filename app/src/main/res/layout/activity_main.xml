@@ -12,13 +12,13 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:gravity="center_horizontal"
-            android:text="@string/saldo"
+            android:text="@string/balance"
             android:textSize="25sp"
             android:layout_marginTop="200dp"
             />
 
         <TextView
-            android:id="@+id/txtSaldo"
+            android:id="@+id/txtBalance"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_gravity="bottom"

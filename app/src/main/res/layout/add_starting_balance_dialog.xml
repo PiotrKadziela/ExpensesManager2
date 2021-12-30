@@ -7,17 +7,17 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/starting_saldo_header"
+        android:text="@string/starting_balance_header"
         android:layout_marginVertical="20dp"
         android:layout_marginHorizontal="80dp"
         android:gravity="center_horizontal"
         android:textSize="25sp"/>
 
     <EditText
-        android:id="@+id/etStartingSaldo"
+        android:id="@+id/etStartingBalance"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/starting_saldo_hint"
+        android:hint="@string/starting_balance_hint"
         android:layout_marginHorizontal="80dp"
         android:importantForAutofill="no"
         android:inputType="numberDecimal" />

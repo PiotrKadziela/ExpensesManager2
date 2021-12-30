@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.core.text.isDigitsOnly
@@ -41,8 +42,19 @@ class AddOperationActivity : AppCompatActivity() {
             loadAddView()
         }
 
-        val options = resources.getStringArray(R.array.Categories)
-        loadCategoriesSpinner(options)
+        var options: Array<String>
+        rgType.setOnCheckedChangeListener { group, checkedId ->
+            val radioButton: RadioButton = findViewById(checkedId)
+            if(radioButton.text == "Income"){
+                spCategory.setEnabled(false)
+                options =  arrayOf("Income")
+            } else {
+                spCategory.setEnabled(true)
+                options = sql.getAllCategories()
+            }
+            loadCategoriesSpinner(options)
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
@@ -55,7 +67,7 @@ class AddOperationActivity : AppCompatActivity() {
                 val costString = etCost.text.toString()
                 val splitedCost = costString.split('.')
                 val costDecimals = splitedCost.last()
-                if(costDecimals.length > 2){
+                if(costDecimals.length > 2 && splitedCost.size > 1){
                     val decimalCost: Double = costString.toDouble()
                     val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
                     etCost.setText(roundedCost)
@@ -79,8 +91,12 @@ class AddOperationActivity : AppCompatActivity() {
                 addOperation()
             }
         }
+
+        val options = sql.getAllCategories()
+        loadCategoriesSpinner(options)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun loadEditView() {
         btnAdd.isVisible = false
         txtHeader.setText(resources.getString(R.string.edit_activity_header))
@@ -103,7 +119,7 @@ class AddOperationActivity : AppCompatActivity() {
         })
         btnEdit.setOnClickListener {
             if(etTitle.text.toString().length < 3){
-                txtError.setText("Too short title!")
+                txtError.text = "Too short title!"
             }
             else if(etTitle.text.toString().isDigitsOnly()) {
                 txtError.setText("Title cannot be a number!")
@@ -126,7 +142,10 @@ class AddOperationActivity : AppCompatActivity() {
         val category = intent.getStringExtra("oprCategory")
         val type = intent.getIntExtra("oprType", 0)
 
-        val options = resources.getStringArray(R.array.Categories)
+        val options = when (type){
+            1 -> arrayOf("Income")
+            else -> sql.getAllCategories()
+        }
         loadCategoriesSpinner(options)
 
         if(type == 0){
@@ -138,6 +157,7 @@ class AddOperationActivity : AppCompatActivity() {
         etTitle.setText(title)
         etCost.setText(cost.toString())
         spCategory.setSelection(options.indexOf(category))
+
     }
 
     private fun loadCategoriesSpinner(options: Array<String>) {
@@ -151,9 +171,12 @@ class AddOperationActivity : AppCompatActivity() {
     private fun updateOperation() {
         val title = etTitle.text.toString()
         var cost = etCost.text.toString().toDouble()
-        val category = spCategory.selectedItem.toString()
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
+        val category = when (type){
+            0 -> sql.getCategoryName(spCategory.selectedItemPosition + 1)
+            else -> "Income"
+        }
 
         if(type == 0 && cost > 0 || type == 1 && cost < 0){
             cost = cost * -1
