@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import java.lang.Exception
+import java.lang.Math.round
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -56,7 +57,13 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
+        contentValues.clear()
+
+        val newSaldo = round((getSaldo() + opr.cost) * 100) / 100
+        contentValues.put(VALUE, newSaldo.toDouble())
+        db.update(TBL_CONFIG, contentValues, "name=\"saldo\"", null)
         db.close()
+
         return success
     }
 
@@ -88,7 +95,7 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
             return 0.00
         }
 
-        val saldo: Double
+        var saldo: Double
 
         if (cursor.moveToFirst()){
             saldo = cursor.getDouble(cursor.getColumnIndex(VALUE))
@@ -98,6 +105,26 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
         }
         cursor.close()
 
+        val selectOperationsQuery = "SELECT $COST FROM $TBL_OPERATIONS"
+
+        val cursor1: Cursor?
+
+        try {
+            cursor1 = db.rawQuery(selectOperationsQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectOperationsQuery)
+            return 0.00
+        }
+
+        if (cursor1.moveToFirst()){
+            do {
+                saldo += cursor1.getDouble(cursor1.getColumnIndex(COST))
+            }while (cursor1.moveToNext())
+        }
+
+        cursor1.close()
         return saldo
     }
 
@@ -126,11 +153,11 @@ class SQLiteHelper(context:Context) : SQLiteOpenHelper(context, DATABASE_NAME, n
 
         if (cursor.moveToFirst()){
             do {
-                id = cursor.getInt(cursor.getColumnIndex("_id"))
-                title = cursor.getString(cursor.getColumnIndex("title"))
-                cost = cursor.getDouble(cursor.getColumnIndex("cost"))
-                category = cursor.getString(cursor.getColumnIndex("category"))
-                type = cursor.getInt(cursor.getColumnIndex("type"))
+                id = cursor.getInt(cursor.getColumnIndex(ID))
+                title = cursor.getString(cursor.getColumnIndex(TITLE))
+                cost = cursor.getDouble(cursor.getColumnIndex(COST))
+                category = cursor.getString(cursor.getColumnIndex(CATEGORY))
+                type = cursor.getInt(cursor.getColumnIndex(TYPE))
 
                 val opr = OperationModel(id, title, cost, category, type)
                 oprList.add(opr)
