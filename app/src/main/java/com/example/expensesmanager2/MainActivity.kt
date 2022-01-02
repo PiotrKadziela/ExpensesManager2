@@ -15,6 +15,7 @@ import kotlin.math.floor
 class MainActivity : AppCompatActivity() {
     private lateinit var btnAdd: Button
     private lateinit var btnShow: Button
+    private lateinit var btnShoppingList: Button
     private lateinit var txtBalance: TextView
     private lateinit var sql: SQLiteHelper
 
@@ -40,6 +41,11 @@ class MainActivity : AppCompatActivity() {
 
         btnShow.setOnClickListener{
             val intent = Intent(this, OperationsActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnShoppingList.setOnClickListener{
+            val intent = Intent(this, ShoppingListActivity::class.java)
             startActivity(intent)
         }
 
@@ -92,6 +98,7 @@ class MainActivity : AppCompatActivity() {
     private fun initView() {
         btnAdd = findViewById(R.id.btnAdd)
         btnShow = findViewById(R.id.btnShow)
+        btnShoppingList = findViewById(R.id.btnShoppingList)
         txtBalance = findViewById(R.id.txtBalance)
     }
 }

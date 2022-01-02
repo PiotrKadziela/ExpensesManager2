@@ -15,8 +15,7 @@
             android:gravity="center_horizontal"
             android:text="@string/balance"
             android:textSize="25sp"
-            android:layout_marginTop="200dp"
-            />
+            android:layout_marginTop="200dp" />
 
         <TextView
             android:id="@+id/txtBalance"
@@ -24,8 +23,7 @@
             android:layout_height="40dp"
             android:layout_gravity="bottom"
             android:gravity="center_horizontal"
-            android:textSize="35sp"
-            />
+            android:textSize="35sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -49,8 +47,17 @@
                     android:layout_height="50dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginHorizontal="15dp"
-                    android:layout_marginBottom="50dp"
                     android:text="@string/show" />
+
+                <Button
+                    android:id="@+id/btnShoppingList"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginBottom="50dp"
+                    android:text="@string/list" />
+
         </LinearLayout>
 
 </LinearLayout>

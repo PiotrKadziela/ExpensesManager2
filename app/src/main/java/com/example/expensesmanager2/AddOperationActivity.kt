@@ -43,13 +43,13 @@ class AddOperationActivity : AppCompatActivity() {
         }
 
         var options: Array<String>
-        rgType.setOnCheckedChangeListener { group, checkedId ->
+        rgType.setOnCheckedChangeListener { _, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
             if(radioButton.text == "Income"){
                 spCategory.setEnabled(false)
                 options =  arrayOf("Income")
             } else {
-                spCategory.setEnabled(true)
+                spCategory.isEnabled = true
                 options = sql.getAllCategories()
             }
             loadCategoriesSpinner(options)
@@ -217,7 +217,6 @@ class AddOperationActivity : AppCompatActivity() {
 
         if (status > -1){
             Toast.makeText(this, "Operation added!", Toast.LENGTH_SHORT).show()
-            clearEditTexts()
         } else{
             Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show()
         }
@@ -225,12 +224,6 @@ class AddOperationActivity : AppCompatActivity() {
         val intent = Intent(this, OperationsActivity::class.java)
         startActivity(intent)
         finish()
-    }
-
-    private fun clearEditTexts() {
-        etTitle.setText("")
-        etCost.setText("")
-        etCost.requestFocus()
     }
 
     private fun initView() {

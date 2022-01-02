@@ -13,6 +13,10 @@
     <string name="show">SHOW</string>
     <string name="starting_balance_header">WELCOME!!</string>
     <string name="starting_balance_hint">Enter starting balance</string>
+    <string name="list">LIST</string>
+    <string name="product_amount">Product amount</string>
+    <string name="unit">Unit</string>
+    <string name="name">Name</string>
 
     <string-array name="Categories">
         <item>Cat1</item>
