@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.security.keystore.UserPresenceUnavailableException
 import android.util.Log
 import java.lang.Exception
 import java.math.BigDecimal
@@ -103,7 +104,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val contentValues = ContentValues()
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getCategoryId(opr.category))
+        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
         contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
@@ -123,6 +124,13 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return success
     }
 
+    private fun append(catList: Array<String>, element: String): Array<String> {
+        val list: MutableList<String> = catList.toMutableList()
+        list.add(element)
+        return list.toTypedArray()
+    }
+
+    //CATEGORIES
     @SuppressLint("Range")
     fun getBalance(): Double {
         val selectQuery = "SELECT $VALUE FROM $TBL_CONFIG WHERE $NAME = \"balance\""
@@ -203,45 +211,14 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range", "Recycle")
-    fun getCategoryName(id: Int): String{
-        val selectQuery = "SELECT $NAME FROM $TBL_CATEGORIES WHERE $ID = " + id.toString()
-        val db = this.writableDatabase
-
-        val cursor: Cursor?
-
-        try {
-            cursor = db.rawQuery(selectQuery, null)
-
-        }catch (e: Exception){
-            e.printStackTrace()
-            db.execSQL(selectQuery)
-            return "ERROR"
-        }
-
-        var name: String
-
-        if (cursor.moveToFirst()){
-            name = cursor.getString(cursor.getColumnIndex(NAME))
+    fun getCategory(whereClause: String): MutableMap<String, String>{
+        val valuesArray = mutableMapOf<String, String>()
+        if(whereClause == "$NAME = Income"){
+            valuesArray[NAME] = "Income"
+            valuesArray[ID] = "0"
         }
         else {
-            name = "ERROR"
-        }
-
-        if(id == 0){
-            name = "Income"
-        }
-
-        return name
-    }
-
-    @SuppressLint("Range", "Recycle")
-    fun getCategoryId(name: String): Int{
-        val id: Int
-        if(name == "Income"){
-            id = 0
-        }
-        else {
-            val selectQuery = "SELECT $ID FROM $TBL_CATEGORIES WHERE $NAME = \"" + name + "\""
+            val selectQuery = "SELECT $ID FROM $TBL_CATEGORIES WHERE $whereClause"
             val db = this.writableDatabase
 
             val cursor: Cursor?
@@ -252,24 +229,19 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
             } catch (e: Exception) {
                 e.printStackTrace()
                 db.execSQL(selectQuery)
-                return -1
+                return mutableMapOf()
             }
 
-            if (cursor.moveToFirst()) {
-                id = cursor.getInt(cursor.getColumnIndex(ID))
-            } else {
-                id = -1
+            cursor.moveToFirst()
+
+            for (column in cursor.columnNames) {
+                valuesArray[column] = cursor.getString(cursor.getColumnIndex(column))
             }
         }
-        return id
+        return valuesArray
     }
 
-    private fun append(catList: Array<String>, element: String): Array<String> {
-        val list: MutableList<String> = catList.toMutableList()
-        list.add(element)
-        return list.toTypedArray()
-    }
-
+    //OPERATIONS
     @SuppressLint("Range")
     fun getAllOperations(): ArrayList<OperationModel>{
         val oprList: ArrayList<OperationModel> = ArrayList()
@@ -298,7 +270,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 title = cursor.getString(cursor.getColumnIndex(TITLE))
                 cost = cursor.getDouble(cursor.getColumnIndex(COST))
-                category = getCategoryName(cursor.getInt(cursor.getColumnIndex(CATEGORY)))
+                category = getCategory("$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)).toString())[NAME]!!
                 type = cursor.getInt(cursor.getColumnIndex(TYPE))
 
                 val opr = OperationModel(id, title, cost, category, type)
@@ -316,7 +288,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         contentValues.put(ID, opr.id)
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getCategoryId(opr.category))
+        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
         contentValues.put(TYPE, opr.type)
 
         val success = db.update(TBL_OPERATIONS, contentValues, "_id=" + opr.id, null)
@@ -336,115 +308,18 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return success
     }
 
+    //LIST_PROD
     fun insertListProd(prod: ListProdModel): Long {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(LIST_ID, prod.listId)
-        contentValues.put(PROD_ID, getProductId(prod.name))
+        contentValues.put(PROD_ID, getProduct("$NAME = $prod.name")[ID])
         contentValues.put(AMOUNT, prod.amount)
 
         val success = db.insert(TBL_LIST_PROD, null, contentValues)
 
         db.close()
         return success
-    }
-
-    fun insertProd(prod: ProductModel): Long {
-        val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(NAME, prod.name)
-        contentValues.put(UNIT, prod.unit)
-
-        val success = db.insert(TBL_PRODUCTS, null, contentValues)
-
-        db.close()
-        return success
-    }
-
-    @SuppressLint("Range")
-    fun getAllProducts(): Array<String> {
-        var prodList: Array<String> = emptyArray()
-        val selectQuery = "SELECT * FROM $TBL_PRODUCTS"
-        val db = this.writableDatabase
-
-        val cursor: Cursor?
-
-        try {
-            cursor = db.rawQuery(selectQuery, null)
-
-        }catch (e: Exception){
-            e.printStackTrace()
-            db.execSQL(selectQuery)
-            return arrayOf("")
-        }
-
-        var name: String
-
-        if (cursor.moveToFirst()){
-            do {
-                name = cursor.getString(cursor.getColumnIndex(NAME))
-                prodList = append(prodList, name)
-            }while (cursor.moveToNext())
-        }
-
-        cursor.close()
-        return prodList
-    }
-
-    @SuppressLint("Range")
-    fun getProductId(name: String): Int{
-        val id: Int
-
-        val selectQuery = "SELECT $ID FROM $TBL_PRODUCTS WHERE $NAME = \"" + name + "\""
-        val db = this.writableDatabase
-
-        val cursor: Cursor?
-
-        try {
-            cursor = db.rawQuery(selectQuery, null)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            db.execSQL(selectQuery)
-            return -1
-        }
-
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(cursor.getColumnIndex(ID))
-        } else {
-            id = -1
-        }
-
-        cursor.close()
-        return id
-    }
-
-    @SuppressLint("Range")
-    fun getNewestListId(): Int{
-        val selectQuery = "SELECT $ID FROM $TBL_LISTS WHERE $DONE = 0"
-        val db = this.writableDatabase
-
-        val cursor: Cursor?
-
-        try {
-            cursor = db.rawQuery(selectQuery, null)
-
-        }catch (e: Exception){
-            e.printStackTrace()
-            db.execSQL(selectQuery)
-            return -1
-        }
-
-        val id: Int
-
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(cursor.getColumnIndex(ID))
-        } else {
-            return -1
-        }
-
-        cursor.close()
-        return id
     }
 
     @SuppressLint("Range")
@@ -478,7 +353,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 prodId = cursor.getInt(cursor.getColumnIndex(PROD_ID))
                 amount = cursor.getString(cursor.getColumnIndex(AMOUNT))
 
-                val prod = ListProdModel(id, listId, getProductName(prodId), amount + " " + getProductUnit(prodId))
+                val prod = ListProdModel(id, listId, getProduct("$ID = $prodId")[NAME]!!, amount + " " + getProduct("$ID = $prodId")[UNIT]!!)
                 prodList.add(prod)
             }while (cursor.moveToNext())
         }
@@ -487,9 +362,10 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return prodList
     }
 
+    //LISTS
     @SuppressLint("Range")
-    private fun getProductName(id: Int): String {
-        val selectQuery = "SELECT $NAME FROM $TBL_PRODUCTS WHERE $ID = " + id.toString()
+    fun getNewestListId(): Int{
+        val selectQuery = "SELECT $ID FROM $TBL_LISTS WHERE $DONE = 0"
         val db = this.writableDatabase
 
         val cursor: Cursor?
@@ -500,26 +376,38 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }catch (e: Exception){
             e.printStackTrace()
             db.execSQL(selectQuery)
-            return "ERROR"
+            return -1
         }
 
-        val name: String
+        val id: Int
 
-        if (cursor.moveToFirst()){
-            name = cursor.getString(cursor.getColumnIndex(NAME))
-        }
-        else {
-            name = "ERROR"
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(cursor.getColumnIndex(ID))
+        } else {
+            return -1
         }
 
         cursor.close()
+        return id
+    }
 
-        return name
+    //PRODUCTS
+    fun insertProduct(prod: ProductModel): Long {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(NAME, prod.name)
+        contentValues.put(UNIT, prod.unit)
+
+        val success = db.insert(TBL_PRODUCTS, null, contentValues)
+
+        db.close()
+        return success
     }
 
     @SuppressLint("Range")
-    fun getProductUnit(id: Int): String {
-        val selectQuery = "SELECT $UNIT FROM $TBL_PRODUCTS WHERE $ID = " + id.toString()
+    fun getAllProducts(fieldName: String): Array<String> {
+        var valuesList: Array<String> = emptyArray()
+        val selectQuery = "SELECT * FROM $TBL_PRODUCTS"
         val db = this.writableDatabase
 
         val cursor: Cursor?
@@ -530,20 +418,46 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }catch (e: Exception){
             e.printStackTrace()
             db.execSQL(selectQuery)
-            return "ERROR"
+            return arrayOf("")
         }
 
-        val name: String
+        var fieldValue: String
 
         if (cursor.moveToFirst()){
-            name = cursor.getString(cursor.getColumnIndex(UNIT))
+            do {
+                fieldValue = cursor.getString(cursor.getColumnIndex(fieldName))
+                valuesList = append(valuesList, fieldValue)
+            }while (cursor.moveToNext())
         }
-        else {
-            name = "ERROR"
+
+        cursor.close()
+        return valuesList
+    }
+
+    @SuppressLint("Range")
+    private fun getProduct(whereClause: String): MutableMap<String, String> {
+        val selectQuery = "SELECT * FROM $TBL_PRODUCTS WHERE $whereClause"
+        val db = this.writableDatabase
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return mutableMapOf()
+        }
+
+        val valuesArray = mutableMapOf<String, String>()
+
+        cursor.moveToFirst()
+
+        for (column in cursor.columnNames) {
+            valuesArray[column] = cursor.getString(cursor.getColumnIndex(column))
         }
 
         cursor.close()
 
-        return name
+        return valuesArray
     }
 }

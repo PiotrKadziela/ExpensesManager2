@@ -1,5 +1,6 @@
 package com.example.expensesmanager2
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,7 +22,7 @@ class AddProductActivity : AppCompatActivity() {
         sql = SQLiteHelper(this)
         initView()
 
-        val options = sql.getAllProducts()
+        val options = sql.getAllProducts("name")
         spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, options)
         spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
@@ -73,10 +74,10 @@ class AddProductActivity : AppCompatActivity() {
             setTitle("New product")
             setPositiveButton("Add"){_, _ ->
                 val name = etName.text.toString()
-                var unit = etUnit.text.toString()
+                val unit = etUnit.text.toString()
 
                 val prod = ProductModel(0, name, unit)
-                val status = sql.insertProd(prod)
+                val status = sql.insertProduct(prod)
 
                 if (status > -1){
                     Toast.makeText(this@AddProductActivity, "Product added!", Toast.LENGTH_SHORT).show()

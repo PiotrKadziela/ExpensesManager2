@@ -174,12 +174,12 @@ class AddOperationActivity : AppCompatActivity() {
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
         val category = when (type){
-            0 -> sql.getCategoryName(spCategory.selectedItemPosition + 1)
+            0 -> sql.getCategory("_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
             else -> "Income"
         }
 
         if(type == 0 && cost > 0 || type == 1 && cost < 0){
-            cost = cost * -1
+            cost *= -1
         }
 
         val opr = OperationModel(id, title, cost, category, type)
