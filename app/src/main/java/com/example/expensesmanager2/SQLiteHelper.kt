@@ -99,19 +99,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         onCreate(db)
     }
 
-    fun insertOperation(opr: OperationModel): Long{
-        val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(TITLE, opr.title)
-        contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
-        contentValues.put(TYPE, opr.type)
-
-        val success = db.insert(TBL_OPERATIONS, null, contentValues)
-
-        return success
-    }
-
     fun insertBalance(balance: Double): Long{
         val db = this.writableDatabase
         val contentValues = ContentValues()
@@ -282,6 +269,19 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return oprList
     }
 
+    fun insertOperation(opr: OperationModel): Long{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(TITLE, opr.title)
+        contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
+        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
+        contentValues.put(TYPE, opr.type)
+
+        val success = db.insert(TBL_OPERATIONS, null, contentValues)
+
+        return success
+    }
+
     fun updateOperation(opr: OperationModel): Int{
         val db = this.writableDatabase
         val contentValues = ContentValues()
@@ -313,7 +313,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(LIST_ID, prod.listId)
-        contentValues.put(PROD_ID, getProduct("$NAME = $prod.name")[ID])
+        contentValues.put(PROD_ID, getProduct("$NAME = \"" + prod.name + "\"")[ID])
         contentValues.put(AMOUNT, prod.amount)
 
         val success = db.insert(TBL_LIST_PROD, null, contentValues)
@@ -360,6 +360,17 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         cursor.close()
         return prodList
+    }
+
+    fun deleteListProd(id: Int): Int{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(ID, id)
+
+        val success = db.delete(TBL_LIST_PROD, "_id=" + id, null)
+        db.close()
+
+        return success
     }
 
     //LISTS

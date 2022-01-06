@@ -27,4 +27,18 @@
         android:text="+"
         app:cornerRadius="20dp" />
 
+    <Button
+        android:id="@+id/btnExecute"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/execute"
+        app:cornerRadius="20dp"
+        tools:ignore="RelativeOverlap" />
+
 </RelativeLayout>

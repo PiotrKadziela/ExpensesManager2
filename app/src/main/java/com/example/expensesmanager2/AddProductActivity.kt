@@ -1,6 +1,5 @@
 package com.example.expensesmanager2
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -22,8 +21,8 @@ class AddProductActivity : AppCompatActivity() {
         sql = SQLiteHelper(this)
         initView()
 
-        val options = sql.getAllProducts("name")
-        spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, options)
+        val products = sql.getAllProducts("name")
+        spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, products)
         spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
             override fun onNothingSelected(parent: AdapterView<*>?) {}
