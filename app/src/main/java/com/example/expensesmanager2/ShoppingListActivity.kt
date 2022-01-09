@@ -33,7 +33,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
             if(selectedProducts.isEmpty()){
                 Toast.makeText(this, "No product selected!", Toast.LENGTH_SHORT).show()
             } else {
-                TODO("Open adding expense with shopping list attached")
+                Toast.makeText(this, "Executed!", Toast.LENGTH_SHORT).show()
             }
         }
 

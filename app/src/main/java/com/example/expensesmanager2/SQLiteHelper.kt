@@ -170,7 +170,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     @SuppressLint("Range")
     fun getAllCategories(): Array<String> {
         var catList: Array<String> = emptyArray()
-        val selectQuery = "SELECT * FROM $TBL_CATEGORIES"
+        val selectQuery = "SELECT * FROM $TBL_CATEGORIES WHERE $ID != 0"
         val db = this.writableDatabase
 
         val cursor: Cursor?
@@ -205,7 +205,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
             valuesArray[ID] = "0"
         }
         else {
-            val selectQuery = "SELECT $ID FROM $TBL_CATEGORIES WHERE $whereClause"
+            val selectQuery = "SELECT * FROM $TBL_CATEGORIES WHERE $whereClause"
             val db = this.writableDatabase
 
             val cursor: Cursor?
@@ -257,7 +257,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 title = cursor.getString(cursor.getColumnIndex(TITLE))
                 cost = cursor.getDouble(cursor.getColumnIndex(COST))
-                category = getCategory("$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)).toString())[NAME]!!
+                category = getCategory("$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)))[NAME].toString()
                 type = cursor.getInt(cursor.getColumnIndex(TYPE))
 
                 val opr = OperationModel(id, title, cost, category, type)
@@ -274,7 +274,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val contentValues = ContentValues()
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
+        contentValues.put(CATEGORY, getCategory("$NAME = \"${opr.category}\"")[ID])
         contentValues.put(TYPE, opr.type)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
@@ -288,7 +288,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         contentValues.put(ID, opr.id)
         contentValues.put(TITLE, opr.title)
         contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getCategory("$NAME = $opr.category")[ID])
+        contentValues.put(CATEGORY, getCategory("$NAME = \"${opr.category}\"")[ID])
         contentValues.put(TYPE, opr.type)
 
         val success = db.update(TBL_OPERATIONS, contentValues, "_id=" + opr.id, null)
