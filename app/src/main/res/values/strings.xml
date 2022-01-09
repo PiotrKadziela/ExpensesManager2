@@ -18,6 +18,7 @@
     <string name="unit">Unit</string>
     <string name="name">Name</string>
     <string name="execute">EXECUTE</string>
+    <string name="shopping_list">SHOPPING LIST</string>
 
     <string-array name="Categories">
         <item>Cat1</item>

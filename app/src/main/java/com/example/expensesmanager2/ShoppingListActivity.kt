@@ -48,8 +48,6 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
                 intent.putExtra("oprProds", listProdIds)
                 startActivity(intent)
                 finish()
-
-                Toast.makeText(this, listProdIds.toString(), Toast.LENGTH_SHORT).show()
             }
         }
 

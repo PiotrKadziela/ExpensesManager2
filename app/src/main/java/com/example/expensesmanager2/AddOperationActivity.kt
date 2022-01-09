@@ -48,9 +48,11 @@ class AddOperationActivity : AppCompatActivity() {
             val radioButton: RadioButton = findViewById(checkedId)
             if(radioButton.text == "Income"){
                 spCategory.setEnabled(false)
+                etCost.hint = "Value"
                 options =  arrayOf("Income")
             } else {
                 spCategory.isEnabled = true
+                etCost.hint = "Cost"
                 options = sql.getAllCategories()
             }
             loadCategoriesSpinner(options)
@@ -61,6 +63,10 @@ class AddOperationActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun loadAddView() {
         rbExpense.isChecked = true
+        if(intent.getIntExtra("oprList", 0) != 0){
+            rbExpense.isEnabled = false
+            rbIncome.isEnabled = false
+        }
         btnEdit.isVisible = false
         etCost.addTextChangedListener(object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -226,7 +232,7 @@ class AddOperationActivity : AppCompatActivity() {
         val type = getTypeID()
 
         if(type == 0){
-            cost = cost * -1
+            cost *= -1
         }
 
         val list = intent.getIntExtra("oprList", 0)

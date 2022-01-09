@@ -7,11 +7,21 @@
     tools:context=".ShoppingListActivity"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_alignParentTop="true"
+        android:text="@string/shopping_list"
+        android:layout_marginTop="20dp"
+        android:textSize="20sp"
+        android:id="@+id/txtListHeader"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProducts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/txtListHeader"
         android:layout_margin="20dp"/>
 
     <Button

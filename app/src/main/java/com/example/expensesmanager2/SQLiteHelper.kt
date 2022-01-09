@@ -16,7 +16,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 23
+        private const val DATABASE_VERSION = 24
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -63,6 +63,8 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val createTblCategories = ("CREATE TABLE " + TBL_CATEGORIES + "("
                 + ID + " INTEGER PRIMARY KEY, " + NAME + " TEXT)")
         db?.execSQL(createTblCategories)
+        val insertIncome = ("INSERT INTO " + TBL_CATEGORIES + " ($ID, $NAME) VALUES (0, \"Income\")")
+        db?.execSQL(insertIncome)
         val insertCategories = ("INSERT INTO " + TBL_CATEGORIES + " (" + NAME + ") VALUES (\"Food\"),(\"Entertaiment\"),(\"Transport\"),(\"Clothes\"),(\"Health\"),(\"Pets\"),(\"House\"),(\"Bills\"),(\"Toiletry\")")
         db?.execSQL(insertCategories)
 
@@ -122,33 +124,29 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     @SuppressLint("Range")
     fun getOne(table: String,whereClause: String): MutableMap<String, String>{
         val valuesArray = mutableMapOf<String, String>()
-        if(whereClause == "$NAME = Income"){
-            valuesArray[NAME] = "Income"
-            valuesArray[ID] = "0"
+
+        val selectQuery = "SELECT * FROM $table WHERE $whereClause"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return mutableMapOf()
         }
-        else {
-            val selectQuery = "SELECT * FROM $table WHERE $whereClause"
-            val db = this.writableDatabase
 
-            val cursor: Cursor?
+        cursor.moveToFirst()
 
-            try {
-                cursor = db.rawQuery(selectQuery, null)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                db.execSQL(selectQuery)
-                return mutableMapOf()
-            }
-
-            cursor.moveToFirst()
-
-            for (column in cursor.columnNames) {
-                valuesArray[column] = cursor.getString(cursor.getColumnIndex(column))
-            }
-
-            cursor.close()
+        for (column in cursor.columnNames) {
+            valuesArray[column] = cursor.getString(cursor.getColumnIndex(column))
         }
+
+        cursor.close()
+
         return valuesArray
     }
 
