@@ -20,6 +20,7 @@ class AddOperationActivity : AppCompatActivity() {
     private lateinit var btnEdit: Button
     private lateinit var txtHeader: TextView
     private lateinit var txtError: TextView
+    private lateinit var txtShoppingList: TextView
     private lateinit var spCategory: Spinner
     private lateinit var rgType: RadioGroup
     private lateinit var rbExpense: RadioButton
@@ -157,7 +158,18 @@ class AddOperationActivity : AppCompatActivity() {
         etTitle.setText(title)
         etCost.setText(cost.toString())
         spCategory.setSelection(options.indexOf(category))
+        val list = intent.getIntExtra("oprList", 0)
+        var listString = ""
+        if(list != 0){
+            listString += "SHOPPING LIST:\n\n"
+            val prodList = sql.getAllListProd(list)
 
+            for(prod in prodList){
+                listString += "- " + prod.name + " " + prod.amount + "\n"
+            }
+        }
+
+        txtShoppingList.text = listString
     }
 
     private fun loadCategoriesSpinner(options: Array<String>) {
@@ -173,6 +185,7 @@ class AddOperationActivity : AppCompatActivity() {
         var cost = etCost.text.toString().toDouble()
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
+        val list = sql.getOperation("_id = $id")["list_id"]?.toInt()
         val category = when (type){
             0 -> sql.getCategory("_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
             else -> "Income"
@@ -182,12 +195,16 @@ class AddOperationActivity : AppCompatActivity() {
             cost *= -1
         }
 
-        val opr = OperationModel(id, title, cost, category, type)
+        val opr = OperationModel(id, title, cost, category, type, list)
         sql.updateOperation(opr)
         val intentList = Intent(this, OperationsActivity::class.java)
         startActivity(intentList)
         finish()
         Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun checkIfListAttached(): Boolean {
+        TODO("Not yet implemented")
     }
 
     private fun getTypeID(): Int {
@@ -212,7 +229,9 @@ class AddOperationActivity : AppCompatActivity() {
             cost = cost * -1
         }
 
-        val opr = OperationModel(0, title, cost, category, type)
+        val list = intent.getIntExtra("oprList", 0)
+
+        val opr = OperationModel(0, title, cost, category, type, list)
         val status = sql.insertOperation(opr)
 
         if (status > -1){
@@ -221,6 +240,8 @@ class AddOperationActivity : AppCompatActivity() {
             Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show()
         }
 
+        sql.startNewList()
+        intent.getIntegerArrayListExtra("oprProds", )?.let { sql.updateListProd(it) }
         val intent = Intent(this, OperationsActivity::class.java)
         startActivity(intent)
         finish()
@@ -234,6 +255,7 @@ class AddOperationActivity : AppCompatActivity() {
         spCategory = findViewById(R.id.spCategory)
         txtHeader = findViewById(R.id.txtHeader)
         txtError = findViewById(R.id.txtError)
+        txtShoppingList = findViewById(R.id.txtShoppingList)
         rgType = findViewById(R.id.rgType)
         rbIncome = findViewById(R.id.rbIncome)
         rbExpense = findViewById(R.id.rbExpense)

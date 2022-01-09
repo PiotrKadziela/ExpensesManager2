@@ -16,7 +16,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 18
+        private const val DATABASE_VERSION = 23
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -47,7 +47,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 + COST + " NUMERIC,"
                 + CATEGORY + " INTEGER,"
                 + TYPE + " INTEGER,"
-                + "FOREIGN KEY(" + CATEGORY + ") REFERENCES " + TBL_CATEGORIES + "(" + ID + "))")
+                + LIST_ID + " INTEGER,"
+                + " FOREIGN KEY(" + CATEGORY + ") REFERENCES " + TBL_CATEGORIES + "(" + ID + "),"
+                + " FOREIGN KEY(" + LIST_ID + ") REFERENCES " + TBL_LISTS + "(" + ID + "))")
         db?.execSQL(createTblOperations)
 
         //CONFIG TABLE
@@ -117,7 +119,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return list.toTypedArray()
     }
 
-    //CATEGORIES
     @SuppressLint("Range")
     fun getBalance(): Double {
         val selectQuery = "SELECT $VALUE FROM $TBL_CONFIG WHERE $NAME = \"balance\""
@@ -167,6 +168,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return balance
     }
 
+    //CATEGORIES
     @SuppressLint("Range")
     fun getAllCategories(): Array<String> {
         var catList: Array<String> = emptyArray()
@@ -229,6 +231,33 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     //OPERATIONS
+    @SuppressLint("Range", "Recycle")
+    fun getOperation(whereClause: String): MutableMap<String, String>{
+        val valuesArray = mutableMapOf<String, String>()
+
+        val selectQuery = "SELECT * FROM $TBL_OPERATIONS WHERE $whereClause"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return mutableMapOf()
+        }
+
+        cursor.moveToFirst()
+
+        for (column in cursor.columnNames) {
+            valuesArray[column] = cursor.getString(cursor.getColumnIndex(column))
+        }
+
+        return valuesArray
+    }
+
     @SuppressLint("Range")
     fun getAllOperations(): ArrayList<OperationModel>{
         val oprList: ArrayList<OperationModel> = ArrayList()
@@ -251,6 +280,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var cost: Double
         var category: String
         var type: Int
+        var list: Int
 
         if (cursor.moveToFirst()){
             do {
@@ -259,8 +289,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 cost = cursor.getDouble(cursor.getColumnIndex(COST))
                 category = getCategory("$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)))[NAME].toString()
                 type = cursor.getInt(cursor.getColumnIndex(TYPE))
+                list = cursor.getInt(cursor.getColumnIndex(LIST_ID))
 
-                val opr = OperationModel(id, title, cost, category, type)
+                val opr = OperationModel(id, title, cost, category, type, list)
                 oprList.add(opr)
             }while (cursor.moveToNext())
         }
@@ -276,6 +307,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
         contentValues.put(CATEGORY, getCategory("$NAME = \"${opr.category}\"")[ID])
         contentValues.put(TYPE, opr.type)
+        contentValues.put(LIST_ID, opr.list)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
 
@@ -309,6 +341,18 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     //LIST_PROD
+    fun updateListProd(ids: ArrayList<Int>): Int{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        val idsString = ids.toString().replace('[', '(').replace(']',')')
+        contentValues.put(LIST_ID, getNewestListId())
+
+        val success = db.update(TBL_LIST_PROD, contentValues, "_id IN$idsString", null)
+        db.close()
+
+        return success
+    }
+
     fun insertListProd(prod: ListProdModel): Long {
         val db = this.writableDatabase
         val contentValues = ContentValues()
@@ -323,10 +367,10 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun getAllListProd(): ArrayList<ListProdModel> {
+    fun getAllListProd(listId: Int): ArrayList<ListProdModel> {
 
         val prodList: ArrayList<ListProdModel> = ArrayList()
-        val selectQuery = "SELECT * FROM $TBL_LIST_PROD"
+        val selectQuery = "SELECT * FROM $TBL_LIST_PROD WHERE $LIST_ID = $listId"
         val db = this.writableDatabase
 
         Log.e("QUERY", selectQuery)
@@ -400,6 +444,24 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         cursor.close()
         return id
+    }
+
+    fun startNewList(): Long {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        val newestList = getNewestListId()
+        contentValues.put(DONE, 1)
+
+        db.update(TBL_LISTS, contentValues, "_id=$newestList", null)
+
+        contentValues.clear()
+        contentValues.put(ID, newestList+1)
+        contentValues.put(DONE, 0)
+
+        val success = db.insert(TBL_LISTS, null, contentValues)
+
+        db.close()
+        return success
     }
 
     //PRODUCTS

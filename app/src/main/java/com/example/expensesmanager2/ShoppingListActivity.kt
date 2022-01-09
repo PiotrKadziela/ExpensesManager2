@@ -33,7 +33,23 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
             if(selectedProducts.isEmpty()){
                 Toast.makeText(this, "No product selected!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Executed!", Toast.LENGTH_SHORT).show()
+                val newestListId = sql.getNewestListId()
+                val listProdArray = sql.getAllListProd(newestListId)
+                val listProdIds = ArrayList<Int>()
+
+                for(prod in listProdArray){
+                    if(!selectedProducts.contains(prod.id)){
+                        listProdIds.add(prod.id)
+                    }
+                }
+                val intent = Intent(this, AddOperationActivity::class.java)
+                intent.putExtra("edit", "false")
+                intent.putExtra("oprList", newestListId)
+                intent.putExtra("oprProds", listProdIds)
+                startActivity(intent)
+                finish()
+
+                Toast.makeText(this, listProdIds.toString(), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -41,7 +57,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
     }
 
     private fun getProducts(): ArrayList<ListProdModel> {
-        val prodList = sql.getAllListProd()
+        val prodList = sql.getAllListProd(sql.getNewestListId())
         adapter?.addItems(prodList)
 
         return prodList

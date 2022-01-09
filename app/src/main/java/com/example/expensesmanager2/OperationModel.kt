@@ -6,4 +6,5 @@ data class OperationModel(
     val cost: Double,
     val category: String,
     val type: Int,
+    val list: Int?
 )

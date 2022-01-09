@@ -30,6 +30,7 @@ class OperationsActivity : AppCompatActivity() {
             intent.putExtra("oprCategory", it.category)
             intent.putExtra("edit", "true")
             intent.putExtra("oprType", it.type)
+            intent.putExtra("oprList", it.list)
             startActivity(intent)
             finish()
         }
