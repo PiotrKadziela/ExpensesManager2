@@ -71,6 +71,9 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
             sql.deleteListProd(id)
             getProducts()
             Toast.makeText(this, "Product deleted!", Toast.LENGTH_SHORT).show()
+            initRecyclerView()
+            getProducts()
+            adapter?.setOnClickDeleteItem { deleteProduct(it.id) }
             dialog.dismiss()
         }
         builder.setNegativeButton("NO"){dialog, _ ->

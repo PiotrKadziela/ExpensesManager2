@@ -185,9 +185,9 @@ class AddOperationActivity : AppCompatActivity() {
         var cost = etCost.text.toString().toDouble()
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
-        val list = sql.getOperation("_id = $id")["list_id"]?.toInt()
+        val list = sql.getOne("operations", "_id = $id")["list_id"]?.toInt()
         val category = when (type){
-            0 -> sql.getCategory("_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
+            0 -> sql.getOne("categories", "_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
             else -> "Income"
         }
 

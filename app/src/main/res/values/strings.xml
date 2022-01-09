@@ -10,10 +10,10 @@
     <string name="expense">Expense</string>
     <string name="income">Income</string>
     <string name="balance">BALANCE</string>
-    <string name="show">SHOW</string>
+    <string name="history">HISTORY</string>
     <string name="starting_balance_header">WELCOME!!</string>
     <string name="starting_balance_hint">Enter starting balance</string>
-    <string name="list">LIST</string>
+    <string name="list">SHOPPING LIST</string>
     <string name="product_amount">Product amount</string>
     <string name="unit">Unit</string>
     <string name="name">Name</string>
