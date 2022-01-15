@@ -2,6 +2,7 @@ package com.example.expensesmanager2
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
@@ -9,8 +10,12 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.*
 import kotlin.math.floor
 
 class AddOperationActivity : AppCompatActivity() {
@@ -20,6 +25,7 @@ class AddOperationActivity : AppCompatActivity() {
     private lateinit var btnEdit: Button
     private lateinit var txtHeader: TextView
     private lateinit var txtError: TextView
+    private lateinit var txtDate: TextView
     private lateinit var txtShoppingList: TextView
     private lateinit var spCategory: Spinner
     private lateinit var rgType: RadioGroup
@@ -27,6 +33,7 @@ class AddOperationActivity : AppCompatActivity() {
     private lateinit var rbIncome: RadioButton
     private lateinit var sql: SQLiteHelper
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_operation)
@@ -60,7 +67,8 @@ class AddOperationActivity : AppCompatActivity() {
 
     }
 
-    @SuppressLint("SetTextI18n")
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun loadAddView() {
         rbExpense.isChecked = true
         if(intent.getIntExtra("oprList", 0) != 0){
@@ -98,13 +106,18 @@ class AddOperationActivity : AppCompatActivity() {
                 addOperation()
             }
         }
-
+        val date = SimpleDateFormat("MM/dd/yyyy")
+        txtDate.text = date.format(System.currentTimeMillis())
         val options = sql.getAllCategories()
         loadCategoriesSpinner(options)
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun loadEditView() {
+        if(intent.getIntExtra("oprList", 0) != 0){
+            rbExpense.isEnabled = false
+            rbIncome.isEnabled = false
+        }
         btnAdd.isVisible = false
         txtHeader.setText(resources.getString(R.string.edit_activity_header))
         setFieldsValues()
@@ -138,6 +151,8 @@ class AddOperationActivity : AppCompatActivity() {
                 updateOperation()
             }
         }
+        val date = SimpleDateFormat("MM/dd/yyyy")
+        txtDate.text = date.format(Date(intent.getLongExtra("oprDate", 0)))
     }
 
     private fun setFieldsValues() {
@@ -191,6 +206,7 @@ class AddOperationActivity : AppCompatActivity() {
         var cost = etCost.text.toString().toDouble()
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
+        val date = intent.getLongExtra("oprDate", 0)
         val list = sql.getOne("operations", "_id = $id")["list_id"]?.toInt()
         val category = when (type){
             0 -> sql.getOne("categories", "_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
@@ -201,16 +217,12 @@ class AddOperationActivity : AppCompatActivity() {
             cost *= -1
         }
 
-        val opr = OperationModel(id, title, cost, category, type, list)
+        val opr = OperationModel(id, title, cost, category, type, list, date)
         sql.updateOperation(opr)
         val intentList = Intent(this, OperationsActivity::class.java)
         startActivity(intentList)
         finish()
         Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun checkIfListAttached(): Boolean {
-        TODO("Not yet implemented")
     }
 
     private fun getTypeID(): Int {
@@ -225,11 +237,13 @@ class AddOperationActivity : AppCompatActivity() {
         return type
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun addOperation() {
         val title = etTitle.text.toString()
         var cost = etCost.text.toString().toDouble()
         val category = spCategory.selectedItem.toString()
         val type = getTypeID()
+        val date = System.currentTimeMillis()
 
         if(type == 0){
             cost *= -1
@@ -237,7 +251,7 @@ class AddOperationActivity : AppCompatActivity() {
 
         val list = intent.getIntExtra("oprList", 0)
 
-        val opr = OperationModel(0, title, cost, category, type, list)
+        val opr = OperationModel(0, title, cost, category, type, list, date)
         val status = sql.insertOperation(opr)
 
         if (status > -1){
@@ -262,6 +276,7 @@ class AddOperationActivity : AppCompatActivity() {
         txtHeader = findViewById(R.id.txtHeader)
         txtError = findViewById(R.id.txtError)
         txtShoppingList = findViewById(R.id.txtShoppingList)
+        txtDate = findViewById(R.id.txtDate)
         rgType = findViewById(R.id.rgType)
         rbIncome = findViewById(R.id.rbIncome)
         rbExpense = findViewById(R.id.rbExpense)

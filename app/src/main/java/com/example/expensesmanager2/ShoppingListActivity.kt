@@ -20,7 +20,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shopping_list)
-
+        addProducts()
         initView()
         initRecyclerView()
         getProducts()
@@ -52,6 +52,27 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
         }
 
         adapter?.setOnClickDeleteItem { deleteProduct(it.id) }
+    }
+
+    private fun addProducts() {
+        val products = sql.getProducts()
+        val currentListProd = sql.getAllListProd(sql.getNewestListId())
+
+        for(prod in products){
+            val avg = sql.getAverageProdBuy(prod.id)
+            val lastBuy = sql.getLastBuyDate(prod.id)
+            val diff = (System.currentTimeMillis() - lastBuy) / 1000 / 3600 / 24
+            var isOnList = false
+            for (product in currentListProd){
+                if(product.name == prod.name){
+                    isOnList = true
+                }
+            }
+            if(diff +1 >= avg["time"]!! && !isOnList){
+                val lp = ListProdModel(0, sql.getNewestListId(), prod.name, avg["amount"]!!.toString())
+                sql.insertListProd(lp)
+            }
+        }
     }
 
     private fun getProducts(): ArrayList<ListProdModel> {

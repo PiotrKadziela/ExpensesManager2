@@ -11,12 +11,14 @@ import android.util.Log
 import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
+import kotlin.math.ceil
+import kotlin.math.round
 
 class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object{
 
-        private const val DATABASE_VERSION = 24
+        private const val DATABASE_VERSION = 27
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -32,10 +34,11 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val CATEGORY = "category"
         private const val TYPE = "type"
         private const val UNIT = "unit"
-        private const val DONE = "done"
+        private const val EXECUTED = "executed"
         private const val LIST_ID = "list_id"
         private const val PROD_ID = "prod_id"
         private const val AMOUNT = "amount"
+        private const val DATE = "date"
 
     }
 
@@ -48,6 +51,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 + CATEGORY + " INTEGER,"
                 + TYPE + " INTEGER,"
                 + LIST_ID + " INTEGER,"
+                + DATE + " INTEGER,"
                 + " FOREIGN KEY(" + CATEGORY + ") REFERENCES " + TBL_CATEGORIES + "(" + ID + "),"
                 + " FOREIGN KEY(" + LIST_ID + ") REFERENCES " + TBL_LISTS + "(" + ID + "))")
         db?.execSQL(createTblOperations)
@@ -78,9 +82,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         //SHOPPING LISTS TABLE
         val createTblLists = ("CREATE TABLE $TBL_LISTS(" +
                 "$ID INTEGER PRIMARY KEY, " +
-                "$DONE INTEGER)")
+                "$EXECUTED INTEGER)")
         db?.execSQL(createTblLists)
-        val insertList = ("INSERT INTO $TBL_LISTS ($DONE) VALUES (0)")
+        val insertList = ("INSERT INTO $TBL_LISTS ($EXECUTED) VALUES (0)")
         db?.execSQL(insertList)
 
         //LISTS_PROD TABLE
@@ -147,6 +151,40 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         cursor.close()
 
+        return valuesArray
+    }
+
+    @SuppressLint("Range")
+    fun getAll(table: String,whereClause: String): ArrayList<MutableMap<String, String>>{
+        val valuesArray = arrayListOf(mutableMapOf<String, String>())
+
+        val selectQuery = "SELECT * FROM $table WHERE $whereClause"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return arrayListOf(mutableMapOf())
+        }
+
+        if (cursor.moveToFirst()){
+            do {
+                val array = mutableMapOf<String, String>()
+                for (column in cursor.columnNames) {
+                    array[column] = cursor.getString(cursor.getColumnIndex(column))
+                    Log.e("ZAPYT", column)
+                }
+                valuesArray.add(array)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        valuesArray.removeAt(0)
         return valuesArray
     }
 
@@ -254,6 +292,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var category: String
         var type: Int
         var list: Int
+        var date: Long
 
         if (cursor.moveToFirst()){
             do {
@@ -263,8 +302,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 category = getOne(TBL_CATEGORIES, "$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)))[NAME].toString()
                 type = cursor.getInt(cursor.getColumnIndex(TYPE))
                 list = cursor.getInt(cursor.getColumnIndex(LIST_ID))
+                date = cursor.getLong(cursor.getColumnIndex(DATE))
 
-                val opr = OperationModel(id, title, cost, category, type, list)
+                val opr = OperationModel(id, title, cost, category, type, list, date)
                 oprList.add(opr)
             }while (cursor.moveToNext())
         }
@@ -281,6 +321,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         contentValues.put(CATEGORY, getOne(TBL_CATEGORIES, "$NAME = \"${opr.category}\"")[ID])
         contentValues.put(TYPE, opr.type)
         contentValues.put(LIST_ID, opr.list)
+        contentValues.put(DATE, opr.date)
 
         val success = db.insert(TBL_OPERATIONS, null, contentValues)
 
@@ -393,7 +434,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     //LISTS
     @SuppressLint("Range")
     fun getNewestListId(): Int{
-        val selectQuery = "SELECT $ID FROM $TBL_LISTS WHERE $DONE = 0"
+        val selectQuery = "SELECT $ID FROM $TBL_LISTS WHERE $EXECUTED = 0"
         val db = this.writableDatabase
 
         val cursor: Cursor?
@@ -423,13 +464,13 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val db = this.writableDatabase
         val contentValues = ContentValues()
         val newestList = getNewestListId()
-        contentValues.put(DONE, 1)
+        contentValues.put(EXECUTED, 1)
 
         db.update(TBL_LISTS, contentValues, "_id=$newestList", null)
 
         contentValues.clear()
         contentValues.put(ID, newestList+1)
-        contentValues.put(DONE, 0)
+        contentValues.put(EXECUTED, 0)
 
         val success = db.insert(TBL_LISTS, null, contentValues)
 
@@ -451,9 +492,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun getAllProducts(fieldName: String): Array<String> {
+    fun getAllProductsNames(): Array<String> {
         var valuesList: Array<String> = emptyArray()
-        val selectQuery = "SELECT * FROM $TBL_PRODUCTS"
+        val selectQuery = "SELECT $NAME FROM $TBL_PRODUCTS"
         val db = this.writableDatabase
 
         val cursor: Cursor?
@@ -471,12 +512,105 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         if (cursor.moveToFirst()){
             do {
-                fieldValue = cursor.getString(cursor.getColumnIndex(fieldName))
+                fieldValue = cursor.getString(cursor.getColumnIndex(NAME))
                 valuesList = append(valuesList, fieldValue)
             }while (cursor.moveToNext())
         }
 
         cursor.close()
         return valuesList
+    }
+
+    @SuppressLint("Range")
+    fun getProducts(): ArrayList<ProductModel> {
+
+        val prodList: ArrayList<ProductModel> = ArrayList()
+        val selectQuery = "SELECT * FROM $TBL_PRODUCTS"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return ArrayList()
+        }
+
+        var id: Int
+        var name: String
+        var unit: String
+
+        if (cursor.moveToFirst()){
+            do {
+                id = cursor.getInt(cursor.getColumnIndex(ID))
+                name = cursor.getString(cursor.getColumnIndex(NAME))
+                unit = cursor.getString(cursor.getColumnIndex(UNIT))
+
+                val prod = ProductModel(id, name, unit)
+                prodList.add(prod)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return prodList
+    }
+
+    fun getAverageProdBuy(id: Int): MutableMap<String, Long>{
+        val listProdList = getAll(TBL_LIST_PROD, "$PROD_ID = $id")
+        val listArray = arrayListOf<Int>()
+        val amounts = mutableListOf<Long>()
+        for(prod in listProdList){
+            if(!prod[LIST_ID].isNullOrEmpty()){
+                listArray.add(prod[LIST_ID]!!.toInt())
+                amounts.add(prod[AMOUNT]!!.toLong())
+            }
+        }
+        val listArrayString = listArray.toString().replace('[','(').replace(']',')')
+        val oprArray = getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC")
+        val dates = mutableListOf<Long>()
+        for (opr in oprArray){
+            dates.add(opr[DATE]!!.toLong())
+        }
+        val dateDiff = arrayListOf<Long>()
+        dates.forEachIndexed { index, l ->
+            if(index < dates.size - 1){
+                dateDiff.add(l - dates[index + 1])
+            }
+        }
+
+        var sum: Long = 0
+        for (value in dateDiff){
+            sum += value
+        }
+
+        val avgTime = (round((sum / dateDiff.size).toDouble() / 1000 / 3600 / 24)).toLong()
+
+        sum = 0
+
+        Log.e("AMNT", amounts.toString())
+        for (value in amounts){
+            sum += value
+        }
+
+        val avgAmount = sum / amounts.size
+
+
+        return mutableMapOf(Pair("time", avgTime), Pair("amount", avgAmount))
+    }
+
+    fun getLastBuyDate(id: Int): Long {
+        val listProdList = getAll(TBL_LIST_PROD, "$PROD_ID = $id")
+        val listArray = arrayListOf<Int>()
+        for(prod in listProdList){
+            if(!prod[LIST_ID].isNullOrEmpty()){
+                listArray.add(prod[LIST_ID]!!.toInt())
+            }
+        }
+        val listArrayString = listArray.toString().replace('[','(').replace(']',')')
+        val oprArray = getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC LIMIT 1")
+        return oprArray[0][DATE]!!.toLong()
     }
 }

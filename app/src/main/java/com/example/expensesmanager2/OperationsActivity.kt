@@ -31,6 +31,7 @@ class OperationsActivity : AppCompatActivity() {
             intent.putExtra("edit", "true")
             intent.putExtra("oprType", it.type)
             intent.putExtra("oprList", it.list)
+            intent.putExtra("oprDate", it.date)
             startActivity(intent)
             finish()
         }
