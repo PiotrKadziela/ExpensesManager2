@@ -19,6 +19,11 @@
     <string name="name">Name</string>
     <string name="execute">EXECUTE</string>
     <string name="shopping_list">SHOPPING LIST</string>
+    <string name="nameUPP">NAME</string>
+    <string name="unitUPP">UNIT</string>
+    <string name="regularUPP">REGULAR</string>
+    <string name="delete">DELETE</string>
+    <string name="manage_products">MANAGE PRODUCTS</string>
 
     <string-array name="Categories">
         <item>Cat1</item>
