@@ -185,8 +185,14 @@ class AddOperationActivity : AppCompatActivity() {
             listString += "SHOPPING LIST:\n\n"
             val prodList = sql.getAllListProd(list)
 
-            for(prod in prodList){
-                listString += "- " + prod.name + " " + prod.amount + "\n"
+            if (prodList.size > 0) {
+                for (prod in prodList) {
+                    listString += "- " + prod.name + " " + prod.amount + "\n"
+                }
+            }
+
+            else{
+                listString += "All products from this\nlist have been deleted\nform database"
             }
         }
 

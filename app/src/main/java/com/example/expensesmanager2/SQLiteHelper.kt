@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 27
+        private const val DATABASE_VERSION = 28
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -39,6 +39,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val PROD_ID = "prod_id"
         private const val AMOUNT = "amount"
         private const val DATE = "date"
+        private const val REGULAR = "isRegularlyBought"
 
     }
 
@@ -76,7 +77,8 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val createTblProducts = ("CREATE TABLE $TBL_PRODUCTS(" +
                 "$ID INTEGER PRIMARY KEY, " +
                 "$NAME TEXT, " +
-                "$UNIT TEXT)")
+                "$UNIT TEXT, " +
+                "$REGULAR INTEGER)")
         db?.execSQL(createTblProducts)
 
         //SHOPPING LISTS TABLE
@@ -345,8 +347,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     fun deleteOperation(id: Int): Int{
         val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(ID, id)
 
         val success = db.delete(TBL_OPERATIONS, "_id=" + id, null)
         db.close()
@@ -422,8 +422,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     fun deleteListProd(id: Int): Int{
         val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(ID, id)
 
         val success = db.delete(TBL_LIST_PROD, "_id=" + id, null)
         db.close()
@@ -484,6 +482,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val contentValues = ContentValues()
         contentValues.put(NAME, prod.name)
         contentValues.put(UNIT, prod.unit)
+        contentValues.put(REGULAR, prod.isBoughtRegularly)
 
         val success = db.insert(TBL_PRODUCTS, null, contentValues)
 
@@ -542,14 +541,16 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var id: Int
         var name: String
         var unit: String
+        var regular: Int
 
         if (cursor.moveToFirst()){
             do {
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 name = cursor.getString(cursor.getColumnIndex(NAME))
                 unit = cursor.getString(cursor.getColumnIndex(UNIT))
+                regular = cursor.getInt(cursor.getColumnIndex(REGULAR))
 
-                val prod = ProductModel(id, name, unit)
+                val prod = ProductModel(id, name, unit, regular)
                 prodList.add(prod)
             }while (cursor.moveToNext())
         }
@@ -586,7 +587,10 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
             sum += value
         }
 
-        val avgTime = (round((sum / dateDiff.size).toDouble() / 1000 / 3600 / 24)).toLong()
+        val avgTime = when(dateDiff.size){
+            0 -> 0
+            else -> (round((sum / dateDiff.size).toDouble() / 1000 / 3600 / 24)).toLong()
+        }
 
         sum = 0
 
@@ -595,8 +599,10 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
             sum += value
         }
 
-        val avgAmount = sum / amounts.size
-
+        val avgAmount = when(amounts.size){
+            0 -> 0
+            else -> sum / amounts.size
+        }
 
         return mutableMapOf(Pair("time", avgTime), Pair("amount", avgAmount))
     }
@@ -611,6 +617,32 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }
         val listArrayString = listArray.toString().replace('[','(').replace(']',')')
         val oprArray = getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC LIMIT 1")
-        return oprArray[0][DATE]!!.toLong()
+        return when(oprArray.size){
+            0 -> 0
+            else -> oprArray[0][DATE]!!.toLong()
+        }
+    }
+
+    fun updateProduct(prod: ProductModel): Int{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(ID, prod.id)
+        contentValues.put(NAME, prod.name)
+        contentValues.put(UNIT, prod.unit)
+        contentValues.put(REGULAR, prod.isBoughtRegularly)
+
+        val success = db.update(TBL_PRODUCTS, contentValues, "$ID=" + prod.id, null)
+        db.close()
+
+        return success
+    }
+
+    fun deleteProduct(id: Int): Int {
+        val db = this.writableDatabase
+
+        val success = db.delete(TBL_PRODUCTS, "$ID=" + id, null) * db.delete(TBL_LIST_PROD, "$PROD_ID=" + id, null)
+        db.close()
+
+        return success
     }
 }

@@ -59,7 +59,13 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
         val currentListProd = sql.getAllListProd(sql.getNewestListId())
 
         for(prod in products){
+            if(prod.isBoughtRegularly == 0){
+                continue
+            }
             val avg = sql.getAverageProdBuy(prod.id)
+            if(avg["time"]!!.toInt() < 1 || avg["amount"]!!.toInt() < 1){
+                continue
+            }
             val lastBuy = sql.getLastBuyDate(prod.id)
             val diff = (System.currentTimeMillis() - lastBuy) / 1000 / 3600 / 24
             var isOnList = false
@@ -68,7 +74,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
                     isOnList = true
                 }
             }
-            if(diff +1 >= avg["time"]!! && !isOnList){
+            if(diff +1 >= avg["time"]!! && !isOnList && prod.isBoughtRegularly == 1){
                 val lp = ListProdModel(0, sql.getNewestListId(), prod.name, avg["amount"]!!.toString())
                 sql.insertListProd(lp)
             }

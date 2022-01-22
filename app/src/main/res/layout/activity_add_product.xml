@@ -44,4 +44,13 @@
         android:layout_gravity="center_horizontal"
         android:text="@string/add"/>
 
+    <TextView
+        android:id="@+id/txtManageProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_products"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/purple_500"/>
+
 </LinearLayout>
