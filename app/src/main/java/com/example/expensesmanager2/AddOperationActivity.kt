@@ -53,7 +53,7 @@ class AddOperationActivity : AppCompatActivity() {
         var options: Array<String>
         rgType.setOnCheckedChangeListener { _, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
-            if(radioButton.text == "Income"){
+            if(radioButton.id == R.id.rbIncome){
                 spCategory.setEnabled(false)
                 etCost.hint = "Value"
                 options =  arrayOf("Income")

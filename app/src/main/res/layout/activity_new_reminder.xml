@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewReminderActivity"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="New reminder"
+        android:gravity="center_horizontal"
+        android:textSize="22sp"
+        android:layout_alignParentTop="true"
+        android:id="@+id/txtHeader"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Title"
+        android:id="@+id/etTitle"
+        android:layout_below="@+id/txtHeader"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description"
+        android:id="@+id/etDesc"
+        android:layout_below="@+id/etTitle"/>
+
+    <RadioGroup
+        android:id="@+id/rgType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etDesc"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rbRegularly"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Regularly" />
+
+        <RadioButton
+            android:id="@+id/rbOnce"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Once" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/rgType"
+        android:id="@+id/llPeriod"
+        android:weightSum="5">
+
+        <TextView
+            android:id="@+id/txtPeriod"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="Period"/>
+
+        <Spinner
+            android:id="@+id/spPeriod"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/llPeriod"
+        android:id="@+id/llDay">
+
+        <TextView
+            android:id="@+id/txtDay"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="Day"/>
+
+        <Spinner
+            android:id="@+id/spDay"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <DatePicker
+        android:id="@+id/dpDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:calendarViewShown="false"
+        android:datePickerMode="spinner"
+        android:visibility="gone"
+        android:layout_below="@+id/llDay"/>
+
+    <TimePicker
+        android:id="@+id/tpTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:timePickerMode="spinner"
+        android:layout_below="@+id/dpDate"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SET"
+            android:id="@+id/btnSet"
+            android:layout_alignParentBottom="true"/>
+
+
+</RelativeLayout>

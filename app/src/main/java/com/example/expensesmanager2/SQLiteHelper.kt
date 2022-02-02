@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 28
+        private const val DATABASE_VERSION = 29
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -26,6 +26,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val TBL_PRODUCTS = "products"
         private const val TBL_LISTS = "lists"
         private const val TBL_LIST_PROD = "list_prod"
+        private const val TBL_REMINDERS = "reminders"
         private const val ID = "_id"
         private const val NAME = "name"
         private const val VALUE = "value"
@@ -40,6 +41,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val AMOUNT = "amount"
         private const val DATE = "date"
         private const val REGULAR = "isRegularlyBought"
+        private const val TIME = "time"
+        private const val DESCRIPTION = "description"
+        private const val PERIOD = "period_id"
 
     }
 
@@ -97,6 +101,16 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 "$AMOUNT NUMERIC)")
         db?.execSQL(createTblListProd)
 
+        //REMINDERS TABLE
+        val createTblReminders = ("CREATE TABLE $TBL_REMINDERS(" +
+                "$ID INTEGER PRIMARY KEY, " +
+                "$TITLE TEXT, " +
+                "$DESCRIPTION TEXT, " +
+                "$TYPE INTEGER, " +
+                "$PERIOD INTEGER, " +
+                "$TIME NUMERIC)")
+        db?.execSQL(createTblReminders)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -106,6 +120,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         db.execSQL("DROP TABLE IF EXISTS $TBL_PRODUCTS")
         db.execSQL("DROP TABLE IF EXISTS $TBL_LISTS")
         db.execSQL("DROP TABLE IF EXISTS $TBL_LIST_PROD")
+        db.execSQL("DROP TABLE IF EXISTS $TBL_REMINDERS")
         onCreate(db)
     }
 
@@ -522,11 +537,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     @SuppressLint("Range")
     fun getProducts(): ArrayList<ProductModel> {
-
         val prodList: ArrayList<ProductModel> = ArrayList()
         val selectQuery = "SELECT * FROM $TBL_PRODUCTS"
         val db = this.writableDatabase
-
         val cursor: Cursor?
 
         try {
@@ -581,24 +594,19 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 dateDiff.add(l - dates[index + 1])
             }
         }
-
         var sum: Long = 0
         for (value in dateDiff){
             sum += value
         }
-
         val avgTime = when(dateDiff.size){
             0 -> 0
             else -> (round((sum / dateDiff.size).toDouble() / 1000 / 3600 / 24)).toLong()
         }
 
         sum = 0
-
-        Log.e("AMNT", amounts.toString())
         for (value in amounts){
             sum += value
         }
-
         val avgAmount = when(amounts.size){
             0 -> 0
             else -> sum / amounts.size
@@ -643,6 +651,22 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val success = db.delete(TBL_PRODUCTS, "$ID=" + id, null) * db.delete(TBL_LIST_PROD, "$PROD_ID=" + id, null)
         db.close()
 
+        return success
+    }
+
+    //REMINDERS
+    fun insertReminder(rmd: ReminderModel): Long{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(TITLE, rmd.title)
+        contentValues.put(DESCRIPTION, rmd.description)
+        contentValues.put(TYPE, rmd.type)
+        contentValues.put(PERIOD, rmd.periodId)
+        contentValues.put(TIME, rmd.time)
+
+        val success = db.insert(TBL_REMINDERS, null, contentValues)
+
+        db.close()
         return success
     }
 }

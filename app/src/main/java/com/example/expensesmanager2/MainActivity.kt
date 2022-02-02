@@ -72,7 +72,8 @@ class MainActivity : AppCompatActivity() {
         val pendingIntent = getBroadcast(this, 1, intent, 0)
 
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, pendingIntent)
-
+        val intent1 = Intent(this, NewReminderActivity::class.java)
+        startActivity(intent1)
     }
 
     private fun setStartingBalance() {
