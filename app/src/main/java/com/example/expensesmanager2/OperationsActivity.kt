@@ -1,6 +1,7 @@
 package com.example.expensesmanager2
 
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -16,7 +17,6 @@ class OperationsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_operations)
-
         recyclerView = findViewById(R.id.rvOperations)
         initRecyclerView()
         sql = SQLiteHelper(this)
@@ -62,10 +62,10 @@ class OperationsActivity : AppCompatActivity() {
         val alert = builder.create()
         alert.show()
     }
+
     private fun getOperations() {
         val oprList = sql.getAllOperations()
 
         adapter?.addItems(oprList)
     }
-
 }

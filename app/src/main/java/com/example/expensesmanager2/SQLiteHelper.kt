@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 29
+        private const val DATABASE_VERSION = 35
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -103,7 +103,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         //REMINDERS TABLE
         val createTblReminders = ("CREATE TABLE $TBL_REMINDERS(" +
-                "$ID INTEGER PRIMARY KEY, " +
+                "id INTEGER PRIMARY KEY, " +
                 "$TITLE TEXT, " +
                 "$DESCRIPTION TEXT, " +
                 "$TYPE INTEGER, " +
@@ -658,6 +658,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun insertReminder(rmd: ReminderModel): Long{
         val db = this.writableDatabase
         val contentValues = ContentValues()
+        contentValues.put("id", rmd.id)
         contentValues.put(TITLE, rmd.title)
         contentValues.put(DESCRIPTION, rmd.description)
         contentValues.put(TYPE, rmd.type)
@@ -667,6 +668,57 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val success = db.insert(TBL_REMINDERS, null, contentValues)
 
         db.close()
+        return success
+    }
+
+    @SuppressLint("Range")
+    fun getAllReminders(): ArrayList<ReminderModel> {
+        val rmdList: ArrayList<ReminderModel> = ArrayList()
+        val selectQuery = "SELECT * FROM $TBL_REMINDERS ORDER BY id DESC"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return ArrayList()
+        }
+
+        var id: Int
+        var title: String
+        var description: String
+        var type: Int
+        var period: Int
+        var time: Long
+
+        if (cursor.moveToFirst()){
+            do {
+                id = cursor.getInt(cursor.getColumnIndex("id"))
+                title = cursor.getString(cursor.getColumnIndex(TITLE))
+                description = cursor.getString(cursor.getColumnIndex(DESCRIPTION))
+                type = cursor.getInt(cursor.getColumnIndex(TYPE))
+                time = cursor.getLong(cursor.getColumnIndex(TIME))
+                period = cursor.getInt(cursor.getColumnIndex(PERIOD))
+
+                val rmd = ReminderModel(id, title, description, type, time, period)
+                rmdList.add(rmd)
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return rmdList
+    }
+
+    fun deleteReminder(id: Int): Int {
+        val db = this.writableDatabase
+
+        val success = db.delete(TBL_REMINDERS, "id=" + id, null) * db.delete(TBL_LIST_PROD, "$PROD_ID=" + id, null)
+        db.close()
+
         return success
     }
 }

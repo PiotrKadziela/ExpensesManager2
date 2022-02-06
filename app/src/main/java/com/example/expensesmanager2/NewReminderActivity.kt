@@ -1,6 +1,10 @@
 package com.example.expensesmanager2
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -20,6 +24,7 @@ import java.time.temporal.TemporalAdjuster
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.math.min
+import kotlin.random.Random
 
 class NewReminderActivity : AppCompatActivity() {
 
@@ -62,23 +67,33 @@ class NewReminderActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setReminder() {
         val title = etTitle.text.toString()
-        val desc = etTitle.text.toString()
+        val desc = etDesc.text.toString()
         val type = getTypeID()
         val time: Long
         val periodId : Int
+        val id = Random.nextInt()
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, AlertReceiver::class.java)
+        intent.putExtra("title", title)
+        intent.putExtra("desc", desc)
+        intent.putExtra("id", id)
+        val pendingIntent = PendingIntent.getBroadcast(this, id, intent, 0)
+
         if(type == 0) {
             periodId = spPeriod.selectedItemPosition
-            if (periodId == 1 || periodId == 0) {
-                time = setNextDayOfWeek()
-            } else {
-                time = setNextDayOfMonth()
+            intent.putExtra("period", periodId)
+            time = when(periodId) {
+                0 -> setNextDayOfWeek()
+                1 -> setNextDayOfWeek()
+                else -> setNextDayOfMonth()
             }
-
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
         } else {
             periodId = -1
             val calendar = Calendar.getInstance()
             calendar.set(dpDate.year, dpDate.month, dpDate.dayOfMonth, tpTime.hour, tpTime.minute)
             time = calendar.timeInMillis
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
         }
 
         val f = SimpleDateFormat("dd/MM/yyyy hh:mm")
@@ -86,63 +101,51 @@ class NewReminderActivity : AppCompatActivity() {
         c.timeInMillis = time
         Log.e("EEE", f.format(c.time))
 
-        val rmd = ReminderModel(0, title, desc, type, time, periodId)
-//        sql.insertReminder(rmd)
+        val rmd = ReminderModel(id, title, desc, type, time, periodId)
+        sql.insertReminder(rmd)
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNextDayOfMonth(): Long {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        val monthsCount : Long = when(spPeriod.selectedItemPosition){
+        val monthsCount = when(spPeriod.selectedItemPosition){
             2 -> 1
             3 -> 2
             else -> 3
         }
-        val thisMonthDate = prepareThisMonthDay()
-        val localDate = LocalDateTime.parse(thisMonthDate, formatter)
-        val thisMonthMillis = localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
-        val time = when(thisMonthMillis > System.currentTimeMillis()){
-            true -> thisMonthMillis
-            else -> localDate.plusMonths(monthsCount)
-                .atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val calendar = Calendar.getInstance()
+        val day = when(spDay.selectedItemPosition){
+            28 -> calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            else -> spDay.selectedItemPosition + 1
         }
+        calendar.set(Calendar.DAY_OF_MONTH, day)
+        calendar.set(Calendar.HOUR_OF_DAY, tpTime.hour)
+        calendar.set(Calendar.MINUTE, tpTime.minute)
+        Log.e("EEE", calendar.timeInMillis.toString())
+        if(calendar.timeInMillis > System.currentTimeMillis()){
+            return calendar.timeInMillis
 
-        return time
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun prepareThisMonthDay(): String {
-        val day = when(spDay.selectedItem.toString().length == 1){
-            true -> "0${spDay.selectedItem}"
-            else -> spDay.selectedItem.toString()
+        }else {
+            calendar.add(Calendar.MONTH, monthsCount)
+            return calendar.timeInMillis
         }
-        val hour = when(tpTime.hour.toString().length == 1){
-            true -> "0${tpTime.hour}"
-            else -> tpTime.hour.toString()
-        }
-        val minute = when(tpTime.minute.toString().length == 1){
-            true -> "0${tpTime.minute}"
-            else -> tpTime.minute.toString()
-        }
-        val thisMonthDate = LocalDate.now().format(
-            DateTimeFormatter.ofPattern("yyyy-MM")).toString() +
-            "-" + day + " " + hour + ":" + minute
-
-        return thisMonthDate
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNextDayOfWeek(): Long {
         val date = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-        val nextReminderDay = date.with(TemporalAdjusters.next(
+        val nextReminderDate = date.with(TemporalAdjusters.next(
             DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase()))
-        ).toString()
-        val nextReminderTime = tpTime.hour.toString() + ":" + tpTime.minute.toString()
-        val nextReminderString = "$nextReminderDay $nextReminderTime"
-        val localDate = LocalDateTime.parse(nextReminderString, formatter)
-        val time = localDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli()
-        return time
+        )
+        val calendar = Calendar.getInstance()
+        calendar.set(
+            nextReminderDate.year,
+            nextReminderDate.monthValue,
+            nextReminderDate.dayOfMonth,
+            tpTime.hour,
+            tpTime.minute)
+
+        return calendar.timeInMillis
     }
 
     private fun getTypeID(): Int {

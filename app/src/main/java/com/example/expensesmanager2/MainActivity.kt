@@ -13,13 +13,12 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.view.isVisible
 import kotlin.math.floor
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +26,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnShow: Button
     private lateinit var btnShoppingList: Button
     private lateinit var txtBalance: TextView
+    private lateinit var ibMenu: ImageButton
+    private lateinit var lvMenu: ListView
     private lateinit var sql: SQLiteHelper
 
     override fun onResume() {
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         txtBalance.text = balance.toString()
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -67,13 +69,25 @@ class MainActivity : AppCompatActivity() {
 
         txtBalance.text = balance.toString()
 
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, AlertReceiver::class.java)
-        val pendingIntent = getBroadcast(this, 1, intent, 0)
+        ibMenu.setOnClickListener {
+            lvMenu.isVisible = !lvMenu.isVisible
+        }
 
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, pendingIntent)
-        val intent1 = Intent(this, NewReminderActivity::class.java)
-        startActivity(intent1)
+        lvMenu.setOnItemClickListener { _, view, position, _ ->
+            when(position){
+                0 -> {
+                    val intent = Intent(this, ManageProductsActivity::class.java)
+                    startActivity(intent)
+                }
+                1 -> {
+                    val intent = Intent(this, RemindersActivity::class.java)
+                    startActivity(intent)
+                }
+                else -> {
+                    Toast.makeText(this, view.toString(), Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun setStartingBalance() {
@@ -118,5 +132,12 @@ class MainActivity : AppCompatActivity() {
         btnShow = findViewById(R.id.btnShow)
         btnShoppingList = findViewById(R.id.btnShoppingList)
         txtBalance = findViewById(R.id.txtBalance)
+        ibMenu = findViewById(R.id.ibMenu)
+        lvMenu = findViewById(R.id.lvMenu)
+
+        val menuArray = arrayListOf<String>("Products", "Reminders", "Statistics")
+        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray)
+
+        lvMenu.adapter = arrayAdapter
     }
 }

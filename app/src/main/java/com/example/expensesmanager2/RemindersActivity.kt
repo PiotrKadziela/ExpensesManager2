@@ -1,0 +1,72 @@
+package com.example.expensesmanager2
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+class RemindersActivity : AppCompatActivity() {
+    private lateinit var btnNewReminder : Button
+    private lateinit var recyclerView: RecyclerView
+    private var adapter: ReminderAdapter? = null
+    private lateinit var sql: SQLiteHelper
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_reminders)
+
+        btnNewReminder = findViewById(R.id.btnNewReminder)
+
+        btnNewReminder.setOnClickListener {
+            val intent = Intent(this, NewReminderActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        recyclerView = findViewById(R.id.rvReminders)
+        initRecyclerView()
+        sql = SQLiteHelper(this)
+        getReminders()
+
+        adapter?.setOnClickDeleteItem { deleteReminder(it.id)}
+    }
+
+    private fun deleteReminder(id: Int) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Are You sure?")
+        builder.setCancelable(true)
+        builder.setPositiveButton("YES"){dialog, _ ->
+            sql.deleteReminder(id)
+            unsetReminder(id)
+            getReminders()
+            Toast.makeText(this, "Reminder deleted!", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+        builder.setNegativeButton("NO"){dialog, _ ->
+            dialog.dismiss()
+        }
+
+        val alert = builder.create()
+        alert.show()
+    }
+
+    private fun unsetReminder(id: Int) {
+        //unset alarm
+    }
+
+    private fun initRecyclerView() {
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = ReminderAdapter()
+        recyclerView.adapter = adapter
+    }
+
+    private fun getReminders() {
+        val rmdList = sql.getAllReminders()
+
+        adapter?.addItems(rmdList)
+    }
+}

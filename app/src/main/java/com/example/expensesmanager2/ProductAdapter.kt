@@ -41,11 +41,11 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
         return prodList.size
     }
 
-    class ProductViewHolder(var view: View) : RecyclerView.ViewHolder(view){
-        var name = view.findViewById<TextView>(R.id.txtName)
-        var unit = view.findViewById<TextView>(R.id.txtUnit)
-        var regular = view.findViewById<TextView>(R.id.txtRegular)
-        var delete = view.findViewById<TextView>(R.id.txtDelete)
+    class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view){
+        val name = view.findViewById<TextView>(R.id.txtName)
+        val unit = view.findViewById<TextView>(R.id.txtUnit)
+        val regular = view.findViewById<TextView>(R.id.txtRegular)
+        val delete = view.findViewById<TextView>(R.id.txtDelete)
 
         fun bindView(prod: ProductModel){
             name.text = prod.name
