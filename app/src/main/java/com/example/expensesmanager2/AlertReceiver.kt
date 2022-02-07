@@ -15,12 +15,12 @@ import androidx.core.content.ContextCompat.getSystemService
 import java.util.*
 
 class AlertReceiver : BroadcastReceiver() {
-    @SuppressLint("ServiceCast")
+    @SuppressLint("ServiceCast", "UnspecifiedImmutableFlag")
     override fun onReceive(context: Context?, intent: Intent?) {
-        val period = intent!!.getIntExtra("period", 0)
+        val period = intent!!.getIntExtra("period", 99)
         val title = intent.getStringExtra("title")
         val desc = intent.getStringExtra("desc")
-        val id = intent.getStringExtra("id")
+        val id = intent.getIntExtra("id", 0)
         displayNotification(context!!, title!!, desc!!)
         if(period != 99) {
             val c = Calendar.getInstance()
@@ -35,7 +35,7 @@ class AlertReceiver : BroadcastReceiver() {
             i.putExtra("period", period)
             i.putExtra("title", title)
             i.putExtra("desc", desc)
-            val pendingIntent = PendingIntent.getBroadcast(context, 123, i, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, id, i, PendingIntent.FLAG_UPDATE_CURRENT)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
             alarmManager!!.setExact(AlarmManager.RTC, c.timeInMillis, pendingIntent)
         }
