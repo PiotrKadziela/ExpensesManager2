@@ -194,7 +194,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 val array = mutableMapOf<String, String>()
                 for (column in cursor.columnNames) {
                     array[column] = cursor.getString(cursor.getColumnIndex(column))
-                    Log.e("ZAPYT", column)
                 }
                 valuesArray.add(array)
             }while (cursor.moveToNext())
@@ -402,7 +401,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val selectQuery = "SELECT * FROM $TBL_LIST_PROD WHERE $LIST_ID = $listId"
         val db = this.writableDatabase
 
-        Log.e("QUERY", selectQuery)
         val cursor: Cursor?
 
         try {

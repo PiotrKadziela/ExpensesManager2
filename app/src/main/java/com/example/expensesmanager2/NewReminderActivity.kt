@@ -99,7 +99,6 @@ class NewReminderActivity : AppCompatActivity() {
         val f = SimpleDateFormat("dd/MM/yyyy hh:mm")
         val c = Calendar.getInstance()
         c.timeInMillis = time
-        Log.e("EEE", f.format(c.time))
 
         val rmd = ReminderModel(id, title, desc, type, time, periodId)
         sql.insertReminder(rmd)
@@ -121,7 +120,6 @@ class NewReminderActivity : AppCompatActivity() {
         calendar.set(Calendar.DAY_OF_MONTH, day)
         calendar.set(Calendar.HOUR_OF_DAY, tpTime.hour)
         calendar.set(Calendar.MINUTE, tpTime.minute)
-        Log.e("EEE", calendar.timeInMillis.toString())
         if(calendar.timeInMillis > System.currentTimeMillis()){
             return calendar.timeInMillis
 
