@@ -84,7 +84,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 else -> {
-                    Toast.makeText(this, view.toString(), Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this, StatisticsActivity::class.java)
+                    startActivity(intent)
                 }
             }
         }

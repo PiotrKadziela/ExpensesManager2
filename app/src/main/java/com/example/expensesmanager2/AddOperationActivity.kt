@@ -16,6 +16,7 @@ import androidx.core.view.isVisible
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.floor
 
 class AddOperationActivity : AppCompatActivity() {
@@ -50,17 +51,19 @@ class AddOperationActivity : AppCompatActivity() {
             loadAddView()
         }
 
-        var options: Array<String>
+        var options = ArrayList<String>()
         rgType.setOnCheckedChangeListener { _, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
             if(radioButton.id == R.id.rbIncome){
                 spCategory.setEnabled(false)
                 etCost.hint = "Value"
-                options =  arrayOf("Income")
+                options.add("Income")
             } else {
                 spCategory.isEnabled = true
                 etCost.hint = "Cost"
-                options = sql.getAllCategories()
+                for(cat in sql.getAllCategories()){
+                    options.add(cat.name)
+                }
             }
             loadCategoriesSpinner(options)
         }
@@ -108,7 +111,10 @@ class AddOperationActivity : AppCompatActivity() {
         }
         val date = SimpleDateFormat("MM/dd/yyyy")
         txtDate.text = date.format(System.currentTimeMillis())
-        val options = sql.getAllCategories()
+        val options = ArrayList<String>()
+        for (cat in sql.getAllCategories()){
+            options.add(cat.name)
+        }
         loadCategoriesSpinner(options)
     }
 
@@ -164,9 +170,15 @@ class AddOperationActivity : AppCompatActivity() {
         val category = intent.getStringExtra("oprCategory")
         val type = intent.getIntExtra("oprType", 0)
 
-        val options = when (type){
-            1 -> arrayOf("Income")
-            else -> sql.getAllCategories()
+        val options = ArrayList<String>()
+
+        when (type){
+            1 -> options.add("Income")
+            else -> {
+                for(cat in sql.getAllCategories()){
+                    options.add(cat.name)
+                }
+            }
         }
         loadCategoriesSpinner(options)
 
@@ -199,7 +211,7 @@ class AddOperationActivity : AppCompatActivity() {
         txtShoppingList.text = listString
     }
 
-    private fun loadCategoriesSpinner(options: Array<String>) {
+    private fun loadCategoriesSpinner(options: ArrayList<String>) {
         spCategory.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, options)
         spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}

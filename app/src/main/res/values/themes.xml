@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.ExpensesManager2" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">#112BBD</item>
+        <item name="colorPrimary">#FF112BBD</item>
         <item name="colorPrimaryVariant">#000000B3</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->

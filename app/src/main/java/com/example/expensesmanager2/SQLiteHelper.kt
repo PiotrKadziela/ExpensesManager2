@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 35
+        private const val DATABASE_VERSION = 36
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -255,8 +255,8 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     //CATEGORIES
     @SuppressLint("Range")
-    fun getAllCategories(): Array<String> {
-        var catList: Array<String> = emptyArray()
+    fun getAllCategories(): ArrayList<CategoryModel> {
+        var catList: ArrayList<CategoryModel> = arrayListOf()
         val selectQuery = "SELECT * FROM $TBL_CATEGORIES WHERE $ID != 0"
         val db = this.writableDatabase
 
@@ -268,20 +268,49 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         }catch (e: Exception){
             e.printStackTrace()
             db.execSQL(selectQuery)
-            return arrayOf("")
+            return arrayListOf()
         }
 
+        var id: Int
         var name: String
 
         if (cursor.moveToFirst()){
             do {
+                id = cursor.getInt(cursor.getColumnIndex(ID))
                 name = cursor.getString(cursor.getColumnIndex(NAME))
-                catList = append(catList, name)
+                catList.add(CategoryModel(id, name))
             }while (cursor.moveToNext())
         }
 
         cursor.close()
         return catList
+    }
+
+    @SuppressLint("Range")
+    fun getCategorySummary(id: Int, since: Long): Float {
+        val selectQuery = "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY = $id AND $DATE > $since"
+        val db = this.writableDatabase
+        var sum = 0F
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return sum
+        }
+
+
+        if (cursor.moveToFirst()){
+            do {
+                sum += cursor.getFloat(cursor.getColumnIndex(COST))
+            }while (cursor.moveToNext())
+        }
+
+        return -sum
     }
 
     //OPERATIONS
@@ -366,6 +395,33 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         db.close()
 
         return success
+    }
+
+    @SuppressLint("Range")
+    fun getExpensesSumSince(since: Long): Double{
+        val selectQuery = "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY != 0 AND $DATE > $since"
+        val db = this.writableDatabase
+        var sum = 0.00
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return sum
+        }
+
+
+        if (cursor.moveToFirst()){
+            do {
+                sum += cursor.getDouble(cursor.getColumnIndex(COST))
+            }while (cursor.moveToNext())
+        }
+
+        return -sum
     }
 
     //LIST_PROD
