@@ -36,6 +36,8 @@ class RemindersActivity : AppCompatActivity() {
         getReminders()
 
         adapter?.setOnClickDeleteItem { deleteReminder(it.id)}
+
+        sql.deleteOutdatedReminders(System.currentTimeMillis())
     }
 
     private fun deleteReminder(id: Int) {

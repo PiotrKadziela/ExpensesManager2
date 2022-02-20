@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnShow: Button
     private lateinit var btnShoppingList: Button
     private lateinit var txtBalance: TextView
+    private lateinit var txtCurrency: TextView
     private lateinit var ibMenu: ImageButton
     private lateinit var lvMenu: ListView
     private lateinit var sql: SQLiteHelper
@@ -33,8 +34,9 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val balance = sql.getBalance()
-        txtBalance.text = balance.toString()
+        txtBalance.text = sql.getBalance().toString()
+        txtCurrency.text = sql.getConfig()["currency"]
+        lvMenu.isVisible = false
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -97,14 +99,14 @@ class MainActivity : AppCompatActivity() {
         val inflater = layoutInflater
         val dialogLayout = inflater.inflate(R.layout.add_starting_balance_dialog, null)
         val etStartingBalance = dialogLayout.findViewById<EditText>(R.id.etStartingBalance)
+        val etCurrency = dialogLayout.findViewById<EditText>(R.id.etCurrency)
 
         with(builder){
             setTitle("Hello!")
             setPositiveButton("OK"){_, _ ->
-                if(sql.insertBalance(etStartingBalance.text.toString().toDouble()) > -1){
-                    Toast.makeText(this@MainActivity, "Balance set!", Toast.LENGTH_SHORT).show()
-                    val balance = sql.getBalance()
-                    txtBalance.text = balance.toString()
+                if(sql.insertConfig(etStartingBalance.text.toString(), etCurrency.text.toString()) > -1){
+                    txtBalance.text = sql.getConfig()["balance"]
+                    txtCurrency.text = sql.getConfig()["currency"]
                 }
             }
             setView(dialogLayout)
@@ -134,6 +136,7 @@ class MainActivity : AppCompatActivity() {
         btnShow = findViewById(R.id.btnShow)
         btnShoppingList = findViewById(R.id.btnShoppingList)
         txtBalance = findViewById(R.id.txtBalance)
+        txtCurrency = findViewById(R.id.txtCurrency)
         ibMenu = findViewById(R.id.ibMenu)
         lvMenu = findViewById(R.id.lvMenu)
 

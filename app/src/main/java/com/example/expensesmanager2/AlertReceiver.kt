@@ -22,6 +22,7 @@ class AlertReceiver : BroadcastReceiver() {
         val desc = intent.getStringExtra("desc")
         val id = intent.getIntExtra("id", 0)
         displayNotification(context!!, title!!, desc!!)
+        val sql = SQLiteHelper(context)
         if(period != 99) {
             val c = Calendar.getInstance()
             when (period) {
@@ -38,6 +39,9 @@ class AlertReceiver : BroadcastReceiver() {
             val pendingIntent = PendingIntent.getBroadcast(context, id, i, PendingIntent.FLAG_UPDATE_CURRENT)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
             alarmManager!!.setExact(AlarmManager.RTC, c.timeInMillis, pendingIntent)
+            sql.updateReminderTime(id, c.timeInMillis)
+        } else {
+            sql.deleteReminder(id)
         }
     }
 

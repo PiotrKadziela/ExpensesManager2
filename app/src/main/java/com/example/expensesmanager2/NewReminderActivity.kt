@@ -31,7 +31,7 @@ class NewReminderActivity : AppCompatActivity() {
     private lateinit var etTitle : EditText
     private lateinit var etDesc : EditText
     private lateinit var rgType : RadioGroup
-    private lateinit var rbRegularly : RadioButton
+    private lateinit var rbPeriodically : RadioButton
     private lateinit var rbOnce : RadioButton
     private lateinit var spPeriod : Spinner
     private lateinit var spDay : Spinner
@@ -52,14 +52,15 @@ class NewReminderActivity : AppCompatActivity() {
 
         rgType.setOnCheckedChangeListener { _, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
-            val isRegular = radioButton.id == R.id.rbRegularly
-            dpDate.isVisible = !isRegular
-            llPeriod.isVisible = isRegular
-            llDay.isVisible = isRegular
+            val isPeriodic = radioButton.id == R.id.rbPeriodically
+            dpDate.isVisible = !isPeriodic
+            llPeriod.isVisible = isPeriodic
+            llDay.isVisible = isPeriodic
         }
 
         btnSet.setOnClickListener {
             setReminder()
+            finish()
         }
     }
 
@@ -97,9 +98,8 @@ class NewReminderActivity : AppCompatActivity() {
         }
 
         val f = SimpleDateFormat("dd/MM/yyyy hh:mm")
-        val c = Calendar.getInstance()
-        c.timeInMillis = time
-
+        Toast.makeText(this, "Reminder set", Toast.LENGTH_SHORT).show()
+        Log.e("EEEE", f.format(time))
         val rmd = ReminderModel(id, title, desc, type, time, periodId)
         sql.insertReminder(rmd)
 
@@ -132,13 +132,16 @@ class NewReminderActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNextDayOfWeek(): Long {
         val date = LocalDate.now()
-        val nextReminderDate = date.with(TemporalAdjusters.next(
-            DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase()))
-        )
+        val nextReminderDate =
+            if(date.dayOfWeek == DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())) date
+            else date.with(
+                    TemporalAdjusters.next(
+                        DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())))
+
         val calendar = Calendar.getInstance()
         calendar.set(
             nextReminderDate.year,
-            nextReminderDate.monthValue,
+            nextReminderDate.monthValue - 1,
             nextReminderDate.dayOfMonth,
             tpTime.hour,
             tpTime.minute)
@@ -150,7 +153,7 @@ class NewReminderActivity : AppCompatActivity() {
         val selectedOption: Int = rgType.checkedRadioButtonId
         val radioButton: RadioButton = findViewById(selectedOption)
         val type = when (radioButton.id){
-            R.id.rbRegularly -> 0
+            R.id.rbPeriodically -> 0
             R.id.rbOnce -> 1
             else -> 0
         }
@@ -162,7 +165,7 @@ class NewReminderActivity : AppCompatActivity() {
         etTitle = findViewById(R.id.etTitle)
         etDesc = findViewById(R.id.etDesc)
         rgType = findViewById(R.id.rgType)
-        rbRegularly = findViewById(R.id.rbRegularly)
+        rbPeriodically = findViewById(R.id.rbPeriodically)
         rbOnce = findViewById(R.id.rbOnce)
         spPeriod = findViewById(R.id.spPeriod)
         spDay = findViewById(R.id.spDay)

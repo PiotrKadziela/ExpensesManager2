@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 36
+        private const val DATABASE_VERSION = 37
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -63,7 +63,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         //CONFIG TABLE
         val createTblConfig = ("CREATE TABLE " + TBL_CONFIG + "("
-                + NAME + " TEXT PRIMARY KEY, " + VALUE + " NUMERIC)")
+                + NAME + " TEXT PRIMARY KEY, " + VALUE + " TEXT)")
         db?.execSQL(createTblConfig)
         val insertCurrentList = ("INSERT INTO $TBL_CONFIG ($NAME, $VALUE) VALUES (\"current_list\", 0)")
         db?.execSQL(insertCurrentList)
@@ -124,7 +124,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         onCreate(db)
     }
 
-    fun insertBalance(balance: Double): Long{
+    fun insertConfig(balance: String, currency: String): Long{
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(VALUE, balance)
@@ -132,8 +132,14 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         val success = db.insert(TBL_CONFIG, null, contentValues)
 
+        contentValues.clear()
+        contentValues.put(VALUE, currency)
+        contentValues.put(NAME, "currency")
+
+        val success1 = db.insert(TBL_CONFIG, null, contentValues)
+
         db.close()
-        return success
+        return success * success1
     }
 
     private fun append(catList: Array<String>, element: String): Array<String> {
@@ -204,6 +210,8 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return valuesArray
     }
 
+
+
     @SuppressLint("Range")
     fun getBalance(): Double {
         val selectQuery = "SELECT $VALUE FROM $TBL_CONFIG WHERE $NAME = \"balance\""
@@ -223,7 +231,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var balance: Double
 
         if (cursor.moveToFirst()){
-            balance = cursor.getDouble(cursor.getColumnIndex(VALUE))
+            balance = cursor.getString(cursor.getColumnIndex(VALUE)).toDouble()
         }
         else {
             balance = 0.00
@@ -688,7 +696,6 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun updateProduct(prod: ProductModel): Int{
         val db = this.writableDatabase
         val contentValues = ContentValues()
-        contentValues.put(ID, prod.id)
         contentValues.put(NAME, prod.name)
         contentValues.put(UNIT, prod.unit)
         contentValues.put(REGULAR, prod.isBoughtRegularly)
@@ -770,9 +777,68 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun deleteReminder(id: Int): Int {
         val db = this.writableDatabase
 
-        val success = db.delete(TBL_REMINDERS, "id=" + id, null) * db.delete(TBL_LIST_PROD, "$PROD_ID=" + id, null)
+        val success = db.delete(TBL_REMINDERS, "id=" + id, null)
         db.close()
 
         return success
+    }
+
+    fun deleteOutdatedReminders(currentTimeMillis: Long): Int {
+        val db = this.writableDatabase
+
+        val success = db.delete(TBL_REMINDERS, "$TYPE = 1 AND $TIME < $currentTimeMillis", null)
+        db.close()
+
+        return success
+    }
+
+    fun updateReminderTime(id: Int, timeInMillis: Long): Int {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(TIME, timeInMillis)
+
+        val success = db.update(TBL_REMINDERS, contentValues, "$ID=$id", null)
+        db.close()
+
+        return success
+    }
+
+    @SuppressLint("Range")
+    fun getConfig(): MutableMap<String, String> {
+        val selectQuery = "SELECT * FROM $TBL_CONFIG"
+        val db = this.writableDatabase
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return mutableMapOf()
+        }
+
+        var key: String
+        var value: String
+        var config: MutableMap<String, String> = mutableMapOf()
+        if (cursor.moveToFirst()){
+            do {
+                key = cursor.getString(cursor.getColumnIndex(NAME))
+                value = cursor.getString(cursor.getColumnIndex(VALUE))
+
+                config[key] = value
+            }while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return config
+
+    }
+
+    fun append(arr: Array<Int>, element: Int): Array<Int> {
+        val list: MutableList<Int> = arr.toMutableList()
+        list.add(element)
+        return list.toTypedArray()
     }
 }

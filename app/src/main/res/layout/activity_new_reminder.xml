@@ -39,11 +39,11 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/rbRegularly"
+            android:id="@+id/rbPeriodically"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="Regularly" />
+            android:text="Periodically" />
 
         <RadioButton
             android:id="@+id/rbOnce"

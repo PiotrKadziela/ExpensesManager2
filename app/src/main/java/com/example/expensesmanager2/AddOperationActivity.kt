@@ -28,6 +28,7 @@ class AddOperationActivity : AppCompatActivity() {
     private lateinit var txtError: TextView
     private lateinit var txtDate: TextView
     private lateinit var txtShoppingList: TextView
+    private lateinit var txtCurrency: TextView
     private lateinit var spCategory: Spinner
     private lateinit var rgType: RadioGroup
     private lateinit var rbExpense: RadioButton
@@ -209,6 +210,7 @@ class AddOperationActivity : AppCompatActivity() {
         }
 
         txtShoppingList.text = listString
+        txtCurrency.text = sql.getConfig()["currency"]
     }
 
     private fun loadCategoriesSpinner(options: ArrayList<String>) {
@@ -295,6 +297,7 @@ class AddOperationActivity : AppCompatActivity() {
         txtError = findViewById(R.id.txtError)
         txtShoppingList = findViewById(R.id.txtShoppingList)
         txtDate = findViewById(R.id.txtDate)
+        txtCurrency = findViewById(R.id.txtCurrency)
         rgType = findViewById(R.id.rgType)
         rbIncome = findViewById(R.id.rbIncome)
         rbExpense = findViewById(R.id.rbExpense)

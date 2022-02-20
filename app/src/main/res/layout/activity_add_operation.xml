@@ -46,14 +46,31 @@
 
     </RadioGroup>
 
-    <EditText
-        android:id="@+id/etCost"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:hint="@string/cost"
-        android:importantForAutofill="no"
-        android:inputType="numberDecimal" />
+        android:weightSum="5">
+
+        <EditText
+            android:id="@+id/etCost"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:hint="@string/cost"
+            android:importantForAutofill="no"
+            android:inputType="numberDecimal"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/txtCurrency"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="USD"
+            android:layout_gravity="center_vertical"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/etTitle"

@@ -1,5 +1,6 @@
 package com.example.expensesmanager2
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ScrollCaptureCallback
@@ -47,10 +48,12 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
         var cost = view.findViewById<TextView>(R.id.txtCost)
         var category = view.findViewById<TextView>(R.id.txtCategory)
         var btnDelete = view.findViewById<Button>(R.id.btnDelete)
+        val sql = SQLiteHelper(view.context)
 
+        @SuppressLint("SetTextI18n")
         fun bindView(opr: OperationModel){
             title.text = opr.title
-            cost.text = opr.cost.toString()
+            cost.text = opr.cost.toString() + " " + sql.getConfig()["currency"]
             if(opr.cost.toInt() < 0){
                 cost.setTextColor(Color.RED)
             } else{

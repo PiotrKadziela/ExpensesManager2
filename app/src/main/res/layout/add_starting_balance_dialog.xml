@@ -22,4 +22,12 @@
         android:importantForAutofill="no"
         android:inputType="numberDecimal" />
 
+    <EditText
+        android:id="@+id/etCurrency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Currency (e.g USD)"
+        android:layout_marginHorizontal="80dp"
+        android:importantForAutofill="no" />
+
 </LinearLayout>
