@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 37
+        private const val DATABASE_VERSION = 38
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -797,7 +797,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val contentValues = ContentValues()
         contentValues.put(TIME, timeInMillis)
 
-        val success = db.update(TBL_REMINDERS, contentValues, "$ID=$id", null)
+        val success = db.update(TBL_REMINDERS, contentValues, "id=$id", null)
         db.close()
 
         return success
@@ -836,9 +836,39 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     }
 
-    fun append(arr: Array<Int>, element: Int): Array<Int> {
-        val list: MutableList<Int> = arr.toMutableList()
-        list.add(element)
-        return list.toTypedArray()
+    @SuppressLint("Range")
+    fun setConfig(balanceStr: String, currency: String): Int{
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(VALUE, currency)
+        val success = db.update(TBL_CONFIG, contentValues, "$NAME = \"currency\"", null)
+
+        var balance = balanceStr.toDouble()
+
+        val selectOperationsQuery = "SELECT $COST FROM $TBL_OPERATIONS"
+
+        val cursor: Cursor?
+
+        try {
+            cursor = db.rawQuery(selectOperationsQuery, null)
+        }catch (e: Exception){
+            e.printStackTrace()
+            db.execSQL(selectOperationsQuery)
+            return -1
+        }
+
+        if (cursor.moveToFirst()){
+            do {
+                balance -= cursor.getDouble(cursor.getColumnIndex(COST))
+            }while (cursor.moveToNext())
+        }
+        cursor.close()
+
+        contentValues.clear()
+        contentValues.put(VALUE, balance.toString())
+        val success1 = db.update(TBL_CONFIG, contentValues, "$NAME = \"balance\"", null)
+        db.close()
+
+        return success * success1
     }
 }

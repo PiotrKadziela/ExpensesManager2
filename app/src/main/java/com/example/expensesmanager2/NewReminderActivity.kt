@@ -78,7 +78,6 @@ class NewReminderActivity : AppCompatActivity() {
         intent.putExtra("title", title)
         intent.putExtra("desc", desc)
         intent.putExtra("id", id)
-        val pendingIntent = PendingIntent.getBroadcast(this, id, intent, 0)
 
         if(type == 0) {
             periodId = spPeriod.selectedItemPosition
@@ -88,12 +87,14 @@ class NewReminderActivity : AppCompatActivity() {
                 1 -> setNextDayOfWeek()
                 else -> setNextDayOfMonth()
             }
+            val pendingIntent = PendingIntent.getBroadcast(this, id, intent, 0)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
         } else {
             periodId = -1
             val calendar = Calendar.getInstance()
             calendar.set(dpDate.year, dpDate.month, dpDate.dayOfMonth, tpTime.hour, tpTime.minute)
             time = calendar.timeInMillis
+            val pendingIntent = PendingIntent.getBroadcast(this, id, intent, 0)
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
         }
 

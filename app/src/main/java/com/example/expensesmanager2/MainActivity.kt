@@ -85,9 +85,13 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(this, RemindersActivity::class.java)
                     startActivity(intent)
                 }
+                2 -> {
+                    val intent = Intent(this, StatisticsActivity::class.java)
+                    startActivity(intent)
+                }
                 else -> {
 
-                    val intent = Intent(this, StatisticsActivity::class.java)
+                    val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                 }
             }
@@ -140,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         ibMenu = findViewById(R.id.ibMenu)
         lvMenu = findViewById(R.id.lvMenu)
 
-        val menuArray = arrayListOf<String>("Products", "Reminders", "Statistics")
+        val menuArray = arrayListOf<String>("Products", "Reminders", "Statistics", "Settings")
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray)
 
         lvMenu.adapter = arrayAdapter

@@ -46,7 +46,7 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
     }
 
     class ReminderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title: TextView = view.findViewById<TextView>(R.id.tvTitle)
+        val title= view.findViewById<TextView>(R.id.tvTitle)
         val period = view.findViewById<TextView>(R.id.tvPeriod)
         val next = view.findViewById<TextView>(R.id.tvNext)
         var delete = view.findViewById<TextView>(R.id.tvDelete)
@@ -66,7 +66,9 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
             val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = rmd.time
-            next.text = formatter.format(calendar.time)
+            next.text = if(rmd.type == 0)
+                "Next: " + formatter.format(calendar.time) else formatter.format(calendar.time)
+
         }
     }
 }
