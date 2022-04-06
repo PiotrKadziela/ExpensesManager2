@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,14 +8,21 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensesmanager2.interfaces.ListProdListener
+import com.example.expensesmanager2.models.ListProdModel
+import com.example.expensesmanager2.R
 
-class ListProdAdapter(val context: Context, val arrayList: ArrayList<Int>, val listProdListener: ListProdListener) : RecyclerView.Adapter<ListProdAdapter.ListProdViewHolder>() {
+class ListProdAdapter(
+    val context: Context,
+    val arrayList: ArrayList<Int>,
+    val listProdListener: ListProdListener
+) : RecyclerView.Adapter<ListProdAdapter.ListProdViewHolder>() {
     private var prodList: ArrayList<ListProdModel> = ArrayList()
     private var onClickItem: ((ListProdModel) -> Unit)? = null
     private var onClickDeleteItem: ((ListProdModel) -> Unit)? = null
     var arrayList0 = ArrayList<Int>()
 
-    fun setOnClickDeleteItem(callback: (ListProdModel) -> Unit){
+    fun setOnClickDeleteItem(callback: (ListProdModel) -> Unit) {
         this.onClickDeleteItem = callback
     }
 
@@ -29,8 +36,8 @@ class ListProdAdapter(val context: Context, val arrayList: ArrayList<Int>, val l
         holder.itemView.setOnClickListener { onClickItem?.invoke(prod) }
         holder.btnDelete.setOnClickListener { onClickDeleteItem?.invoke(prod) }
         holder.cbBought.setOnClickListener {
-            if(arrayList.size > 0){
-                if(holder.cbBought.isChecked){
+            if (arrayList.size > 0) {
+                if (holder.cbBought.isChecked) {
                     arrayList0.add(arrayList[position])
                 } else {
                     arrayList0.remove(arrayList[position])
@@ -48,14 +55,14 @@ class ListProdAdapter(val context: Context, val arrayList: ArrayList<Int>, val l
         this.prodList = prodList
     }
 
-    class ListProdViewHolder(var view: View): RecyclerView.ViewHolder(view){
+    class ListProdViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
         var name = view.findViewById<TextView>(R.id.txtName)
         var amount = view.findViewById<TextView>(R.id.txtAmount)
         var btnDelete = view.findViewById<Button>(R.id.btnDelete)
         var cbBought = view.findViewById<CheckBox>(R.id.cbBought)
 
 
-        fun bindView(prod: ListProdModel){
+        fun bindView(prod: ListProdModel) {
             name.text = prod.name
             amount.text = prod.amount
         }

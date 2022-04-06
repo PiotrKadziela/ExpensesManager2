@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.models
 
 data class ReminderModel(
     val id : Int,

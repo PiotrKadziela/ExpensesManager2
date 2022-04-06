@@ -1,7 +1,6 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import android.content.Intent
-import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
@@ -9,6 +8,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensesmanager2.adapters.OperationAdapter
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.OperationModel
+import com.example.expensesmanager2.utils.SQLiteHelper
 
 class OperationsActivity : AppCompatActivity() {
     private lateinit var sql: SQLiteHelper
@@ -31,7 +34,7 @@ class OperationsActivity : AppCompatActivity() {
             intent.putExtra("oprCategory", it.category)
             intent.putExtra("edit", "true")
             intent.putExtra("oprType", it.type)
-            intent.putExtra("oprList", it.list)
+            intent.putExtra("oprList", it.listId)
             intent.putExtra("oprDate", it.date)
             startActivity(intent)
             finish()
@@ -68,7 +71,7 @@ class OperationsActivity : AppCompatActivity() {
     }
 
     private fun getOperations() {
-        val oprList = sql.getAllOperations()
+        val oprList = OperationModel(this).getAll()
 
         adapter?.addItems(oprList)
     }

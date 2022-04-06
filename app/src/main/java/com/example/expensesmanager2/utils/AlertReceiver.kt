@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.utils
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -12,6 +12,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
+import com.example.expensesmanager2.R
 import java.util.*
 
 class AlertReceiver : BroadcastReceiver() {

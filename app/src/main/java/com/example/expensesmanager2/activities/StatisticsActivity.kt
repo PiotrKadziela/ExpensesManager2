@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import androidx.annotation.RequiresApi
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.utils.SQLiteHelper
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
@@ -14,11 +16,9 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
-import com.google.android.material.color.MaterialColors
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.TemporalAdjuster
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.collections.ArrayList

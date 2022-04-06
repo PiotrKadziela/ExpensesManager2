@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AddOperationActivity">
+    tools:context=".activities.AddOperationActivity">
 
     <TextView
         android:id="@+id/txtHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add_activity_header"
         android:layout_gravity="center_horizontal"
-        android:gravity="center_vertical"
         android:layout_marginTop="20dp"
-        android:textSize="20sp"/>
+        android:gravity="center_vertical"
+        android:text="@string/add_activity_header"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/txtDate"
@@ -22,27 +22,26 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_vertical"
-        android:textSize="15sp"/>
+        android:textSize="15sp" />
 
     <RadioGroup
         android:id="@+id/rgType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/rbExpense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/expense"
-            />
+            android:text="@string/expense" />
 
         <RadioButton
             android:id="@+id/rbIncome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/income"/>
+            android:text="@string/income" />
 
     </RadioGroup>
 
@@ -56,19 +55,19 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
+            android:layout_weight="1"
             android:hint="@string/cost"
             android:importantForAutofill="no"
-            android:inputType="numberDecimal"
-            android:layout_weight="1"/>
+            android:inputType="numberDecimal" />
 
         <TextView
             android:id="@+id/txtCurrency"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="4"
             android:text="USD"
-            android:layout_gravity="center_vertical"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
@@ -82,46 +81,46 @@
         android:inputType="text" />
 
     <Spinner
+        android:id="@+id/spCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/spCategory"
-        android:layout_margin="20dp"/>
+        android:layout_margin="20dp" />
 
     <TextView
         android:id="@+id/txtError"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
-        android:textColor="@color/valid_red"
         android:layout_margin="20dp"
-        android:gravity="center_horizontal"/>
+        android:gravity="center_horizontal"
+        android:textColor="@color/valid_red"
+        android:textSize="12sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/btnAdd"
             android:layout_width="100dp"
             android:layout_height="50dp"
-            android:text="@string/add"/>
+            android:text="@string/add" />
 
         <Button
             android:id="@+id/btnEdit"
             android:layout_width="100dp"
             android:layout_height="50dp"
-            android:text="@string/edit"/>
+            android:text="@string/edit" />
 
     </LinearLayout>
 
     <TextView
+        android:id="@+id/txtShoppingList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/txtShoppingList"
+        android:layout_gravity="center_horizontal"
         android:padding="20dp"
-        android:textSize="16sp"
-        android:layout_gravity="center_horizontal"/>
+        android:textSize="16sp" />
 
 </LinearLayout>

@@ -1,10 +1,12 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensesmanager2.models.ProductModel
+import com.example.expensesmanager2.R
 
 class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
     private var prodList: ArrayList<ProductModel> = ArrayList()

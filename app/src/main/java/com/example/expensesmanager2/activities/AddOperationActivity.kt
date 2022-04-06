@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -7,14 +7,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
+import com.example.expensesmanager2.models.OperationModel
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.utils.SQLiteHelper
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.floor
@@ -229,15 +230,15 @@ class AddOperationActivity : AppCompatActivity() {
         val date = intent.getLongExtra("oprDate", 0)
         val list = sql.getOne("operations", "_id = $id")["list_id"]?.toInt()
         val category = when (type){
-            0 -> sql.getOne("categories", "_id = " + (spCategory.selectedItemPosition + 1).toString())["name"]!!
-            else -> "Income"
+            0 -> spCategory.selectedItemPosition + 1
+            else -> 0
         }
 
         if(type == 0 && cost > 0 || type == 1 && cost < 0){
             cost *= -1
         }
 
-        val opr = OperationModel(id, title, cost, category, type, list, date)
+        val opr = OperationModel(this, id, title, cost, category, type, list, date)
         sql.updateOperation(opr)
         val intentList = Intent(this, OperationsActivity::class.java)
         startActivity(intentList)
@@ -261,18 +262,20 @@ class AddOperationActivity : AppCompatActivity() {
     private fun addOperation() {
         val title = etTitle.text.toString()
         var cost = etCost.text.toString().toDouble()
-        val category = spCategory.selectedItem.toString()
+        var category = spCategory.selectedItemPosition + 1
         val type = getTypeID()
         val date = System.currentTimeMillis()
 
         if(type == 0){
             cost *= -1
+        } else {
+            category = 0
         }
 
         val list = intent.getIntExtra("oprList", 0)
 
-        val opr = OperationModel(0, title, cost, category, type, list, date)
-        val status = sql.insertOperation(opr)
+        val opr = OperationModel(this, 0, title, cost, category, type, list, date)
+        val status = opr.insert()
 
         if (status > -1){
             Toast.makeText(this, "Operation added!", Toast.LENGTH_SHORT).show()

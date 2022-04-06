@@ -1,15 +1,19 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensesmanager2.*
+import com.example.expensesmanager2.adapters.ListProdAdapter
+import com.example.expensesmanager2.interfaces.ListProdListener
+import com.example.expensesmanager2.models.ListProdModel
+import com.example.expensesmanager2.utils.SQLiteHelper
 
-class ShoppingListActivity : AppCompatActivity(), ListProdListener{
+class ShoppingListActivity : AppCompatActivity(), ListProdListener {
     lateinit var btnAdd: Button
     lateinit var btnExecute: Button
     lateinit var rvProducts: RecyclerView
@@ -30,15 +34,15 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
             finish()
         }
         btnExecute.setOnClickListener {
-            if(selectedProducts.isEmpty()){
+            if (selectedProducts.isEmpty()) {
                 Toast.makeText(this, "No product selected!", Toast.LENGTH_SHORT).show()
             } else {
                 val newestListId = sql.getNewestListId()
                 val listProdArray = sql.getAllListProd(newestListId)
                 val listProdIds = ArrayList<Int>()
 
-                for(prod in listProdArray){
-                    if(!selectedProducts.contains(prod.id)){
+                for (prod in listProdArray) {
+                    if (!selectedProducts.contains(prod.id)) {
                         listProdIds.add(prod.id)
                     }
                 }
@@ -58,28 +62,29 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
         val products = sql.getProducts()
         val currentListProd = sql.getAllListProd(sql.getNewestListId())
 
-        for(prod in products){
-            if(prod.isBoughtRegularly == 0){
+        for (prod in products) {
+            if (prod.isBoughtRegularly == 0) {
                 continue
             }
             val avg = sql.getAverageProdBuy(prod.id)
-            if(avg["time"]!!.toInt() < 1 || avg["amount"]!!.toInt() < 1){
+            if (avg["time"]!!.toInt() < 1 || avg["amount"]!!.toInt() < 1) {
                 continue
             }
             val lastBuy = sql.getLastBuyDate(prod.id)
             val diff = (System.currentTimeMillis() - lastBuy) / 1000 / 3600 / 24
             var isOnList = false
-            for (product in currentListProd){
-                if(product.name == prod.name){
+            for (product in currentListProd) {
+                if (product.name == prod.name) {
                     isOnList = true
                 }
             }
-            if(diff +1 >= avg["time"]!! && !isOnList && prod.isBoughtRegularly == 1){
+            if (diff + 1 >= avg["time"]!! && !isOnList && prod.isBoughtRegularly == 1) {
                 val lp = ListProdModel(
                     0,
                     sql.getNewestListId(),
                     prod.name,
-                    avg["amount"]!!.toString())
+                    avg["amount"]!!.toString()
+                )
                 sql.insertListProd(lp)
             }
         }
@@ -96,7 +101,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)
-        builder.setPositiveButton("YES"){dialog, _ ->
+        builder.setPositiveButton("YES") { dialog, _ ->
             sql.deleteListProd(id)
             getProducts()
             Toast.makeText(this, "Product deleted!", Toast.LENGTH_SHORT).show()
@@ -105,7 +110,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
             adapter?.setOnClickDeleteItem { deleteProduct(it.id) }
             dialog.dismiss()
         }
-        builder.setNegativeButton("NO"){dialog, _ ->
+        builder.setNegativeButton("NO") { dialog, _ ->
             dialog.dismiss()
         }
 
@@ -116,7 +121,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
     private fun initRecyclerView() {
         rvProducts.layoutManager = LinearLayoutManager(this)
         val productArray = ArrayList<Int>()
-        for (product in getProducts()){
+        for (product in getProducts()) {
             productArray.add(product.id)
         }
         adapter = ListProdAdapter(this, productArray, this)

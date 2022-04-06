@@ -1,24 +1,17 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.PendingIntent.*
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.isVisible
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.utils.SQLiteHelper
 import kotlin.math.floor
 
 class MainActivity : AppCompatActivity() {

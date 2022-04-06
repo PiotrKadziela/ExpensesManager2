@@ -1,12 +1,13 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.utils.SQLiteHelper
 
-    class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : AppCompatActivity() {
         private lateinit var etCurrency : EditText
         private lateinit var etBalance : EditText
         private lateinit var btnSave : Button

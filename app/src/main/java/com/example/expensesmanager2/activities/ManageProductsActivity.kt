@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,6 +7,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.expensesmanager2.adapters.ProductAdapter
+import com.example.expensesmanager2.models.ProductModel
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.utils.SQLiteHelper
 
 class ManageProductsActivity : AppCompatActivity() {
     private lateinit var sql: SQLiteHelper

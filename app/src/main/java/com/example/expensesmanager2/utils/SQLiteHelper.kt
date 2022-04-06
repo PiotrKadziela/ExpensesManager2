@@ -1,22 +1,22 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.utils
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.security.keystore.UserPresenceUnavailableException
-import android.util.Log
+import com.example.expensesmanager2.models.*
 import java.lang.Exception
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.ceil
 import kotlin.math.round
 
-class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+class SQLiteHelper(context: Context?) :
+    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    companion object{
+    companion object {
 
         private const val DATABASE_VERSION = 40
         private const val DATABASE_NAME = "expensesManager.db"
@@ -65,16 +65,19 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         val createTblConfig = ("CREATE TABLE " + TBL_CONFIG + "("
                 + NAME + " TEXT PRIMARY KEY, " + VALUE + " TEXT)")
         db?.execSQL(createTblConfig)
-        val insertCurrentList = ("INSERT INTO $TBL_CONFIG ($NAME, $VALUE) VALUES (\"current_list\", 0)")
+        val insertCurrentList =
+            ("INSERT INTO $TBL_CONFIG ($NAME, $VALUE) VALUES (\"current_list\", 0)")
         db?.execSQL(insertCurrentList)
 
         //CATEGORIES TABLE
         val createTblCategories = ("CREATE TABLE " + TBL_CATEGORIES + "("
                 + ID + " INTEGER PRIMARY KEY, " + NAME + " TEXT)")
         db?.execSQL(createTblCategories)
-        val insertIncome = ("INSERT INTO " + TBL_CATEGORIES + " ($ID, $NAME) VALUES (0, \"Income\")")
+        val insertIncome =
+            ("INSERT INTO " + TBL_CATEGORIES + " ($ID, $NAME) VALUES (0, \"Income\")")
         db?.execSQL(insertIncome)
-        val insertCategories = ("INSERT INTO " + TBL_CATEGORIES + " (" + NAME + ") VALUES (\"Food\"),(\"Entertaiment\"),(\"Transport\"),(\"Clothes\"),(\"Health\"),(\"Pets\"),(\"House\"),(\"Bills\"),(\"Toiletry\")")
+        val insertCategories =
+            ("INSERT INTO " + TBL_CATEGORIES + " (" + NAME + ") VALUES (\"Food\"),(\"Entertaiment\"),(\"Transport\"),(\"Clothes\"),(\"Health\"),(\"Pets\"),(\"House\"),(\"Bills\"),(\"Toiletry\")")
         db?.execSQL(insertCategories)
 
         //PRODUCTS TABLE
@@ -126,7 +129,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         onCreate(db)
     }
 
-    fun insertConfig(balance: String, currency: String): Long{
+    fun insertConfig(balance: String, currency: String): Long {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(VALUE, balance)
@@ -151,7 +154,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun getOne(table: String,whereClause: String): MutableMap<String, String>{
+    fun getOne(table: String, whereClause: String): MutableMap<String, String> {
         val valuesArray = mutableMapOf<String, String>()
 
         val selectQuery = "SELECT * FROM $table WHERE $whereClause"
@@ -180,7 +183,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun getAll(table: String,whereClause: String): ArrayList<MutableMap<String, String>>{
+    fun getAll(table: String, whereClause: String): ArrayList<MutableMap<String, String>> {
         val valuesArray = arrayListOf(mutableMapOf<String, String>())
 
         val selectQuery = "SELECT * FROM $table WHERE $whereClause"
@@ -197,21 +200,20 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
             return arrayListOf(mutableMapOf())
         }
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 val array = mutableMapOf<String, String>()
                 for (column in cursor.columnNames) {
                     array[column] = cursor.getString(cursor.getColumnIndex(column))
                 }
                 valuesArray.add(array)
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
         valuesArray.removeAt(0)
         return valuesArray
     }
-
 
 
     @SuppressLint("Range")
@@ -224,7 +226,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return 0.00
@@ -232,10 +234,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         var balance: Double
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             balance = cursor.getString(cursor.getColumnIndex(VALUE)).toDouble()
-        }
-        else {
+        } else {
             balance = 0.00
         }
         cursor.close()
@@ -247,16 +248,16 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor1 = db.rawQuery(selectOperationsQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectOperationsQuery)
             return 0.00
         }
 
-        if (cursor1.moveToFirst()){
+        if (cursor1.moveToFirst()) {
             do {
                 balance += cursor1.getDouble(cursor1.getColumnIndex(COST))
-            }while (cursor1.moveToNext())
+            } while (cursor1.moveToNext())
         }
 
         cursor1.close()
@@ -275,7 +276,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return arrayListOf()
@@ -284,12 +285,12 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var id: Int
         var name: String
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 name = cursor.getString(cursor.getColumnIndex(NAME))
                 catList.add(CategoryModel(id, name))
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
@@ -298,7 +299,8 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     @SuppressLint("Range")
     fun getCategorySummary(id: Int, since: Long): Float {
-        val selectQuery = "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY = $id AND $DATE > $since"
+        val selectQuery =
+            "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY = $id AND $DATE > $since"
         val db = this.writableDatabase
         var sum = 0F
 
@@ -307,17 +309,17 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return sum
         }
 
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 sum += cursor.getFloat(cursor.getColumnIndex(COST))
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         return -sum
@@ -325,7 +327,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     //OPERATIONS
     @SuppressLint("Range")
-    fun getAllOperations(): ArrayList<OperationModel>{
+    fun getAllOperations(): ArrayList<OperationModel> {
         val oprList: ArrayList<OperationModel> = ArrayList()
         val selectQuery = "SELECT * FROM $TBL_OPERATIONS ORDER BY $ID DESC"
         val db = this.writableDatabase
@@ -335,7 +337,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return ArrayList()
@@ -344,46 +346,66 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var id: Int
         var title: String
         var cost: Double
-        var category: String
+        var category: Int
         var type: Int
         var list: Int
         var date: Long
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 title = cursor.getString(cursor.getColumnIndex(TITLE))
                 cost = cursor.getDouble(cursor.getColumnIndex(COST))
-                category = getOne(TBL_CATEGORIES, "$ID = " + cursor.getInt(cursor.getColumnIndex(CATEGORY)))[NAME].toString()
+                category = cursor.getColumnIndex(CATEGORY)
                 type = cursor.getInt(cursor.getColumnIndex(TYPE))
                 list = cursor.getInt(cursor.getColumnIndex(LIST_ID))
                 date = cursor.getLong(cursor.getColumnIndex(DATE))
 
-                val opr = OperationModel(id, title, cost, category, type, list, date)
-                oprList.add(opr)
-            }while (cursor.moveToNext())
+
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
         return oprList
     }
-
-    fun insertOperation(opr: OperationModel): Long{
+    @SuppressLint("Range")
+    fun getAll(table: String): Array<Map<String,String>>{
+        val selectQuery = "SELECT * FROM $table"
         val db = this.writableDatabase
-        val contentValues = ContentValues()
-        contentValues.put(TITLE, opr.title)
-        contentValues.put(COST, BigDecimal(opr.cost).setScale(2, RoundingMode.HALF_EVEN).toDouble())
-        contentValues.put(CATEGORY, getOne(TBL_CATEGORIES, "$NAME = \"${opr.category}\"")[ID])
-        contentValues.put(TYPE, opr.type)
-        contentValues.put(LIST_ID, opr.list)
-        contentValues.put(DATE, opr.date)
 
-        val success = db.insert(TBL_OPERATIONS, null, contentValues)
+        val cursor: Cursor?
 
-        return success
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            return arrayOf()
+        }
+        val result: MutableList<Map<String, String>> = mutableListOf()
+        if (cursor.moveToFirst()) {
+            do {
+                for (field in cursor.columnNames){
+                    result.add(mapOf(field to cursor.getString(cursor.getColumnIndex(field))))
+                }
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return result.toTypedArray()
     }
 
-    fun updateOperation(opr: OperationModel): Int{
+    fun insert(table: String, fields: MutableMap<String, String>): Long {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+
+        for (field in fields) contentValues.put(field.key, field.value)
+
+        return db.insert(table, null, contentValues)
+    }
+
+    fun updateOperation(opr: OperationModel): Int {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(ID, opr.id)
@@ -398,7 +420,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         return success
     }
 
-    fun deleteOperation(id: Int): Int{
+    fun deleteOperation(id: Int): Int {
         val db = this.writableDatabase
 
         val success = db.delete(TBL_OPERATIONS, "_id=" + id, null)
@@ -408,8 +430,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun getExpensesSumSince(since: Long): Double{
-        val selectQuery = "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY != 0 AND $DATE > $since"
+    fun getExpensesSumSince(since: Long): Double {
+        val selectQuery =
+            "SELECT $COST FROM $TBL_OPERATIONS WHERE $CATEGORY != 0 AND $DATE > $since"
         val db = this.writableDatabase
         var sum = 0.00
 
@@ -418,27 +441,27 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return sum
         }
 
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 sum += cursor.getDouble(cursor.getColumnIndex(COST))
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         return -sum
     }
 
     //LIST_PROD
-    fun updateListProd(ids: ArrayList<Int>): Int{
+    fun updateListProd(ids: ArrayList<Int>): Int {
         val db = this.writableDatabase
         val contentValues = ContentValues()
-        val idsString = ids.toString().replace('[', '(').replace(']',')')
+        val idsString = ids.toString().replace('[', '(').replace(']', ')')
         contentValues.put(LIST_ID, getNewestListId())
 
         val success = db.update(TBL_LIST_PROD, contentValues, "_id IN$idsString", null)
@@ -472,7 +495,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return ArrayList()
@@ -483,23 +506,28 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var prodId: Int
         var amount: String
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 listId = cursor.getInt(cursor.getColumnIndex(LIST_ID))
                 prodId = cursor.getInt(cursor.getColumnIndex(PROD_ID))
                 amount = cursor.getString(cursor.getColumnIndex(AMOUNT))
 
-                val prod = ListProdModel(id, listId, getOne("products", "$ID = $prodId")[NAME]!!, amount + " " + getOne("products", "$ID = $prodId")[UNIT]!!)
+                val prod = ListProdModel(
+                    id,
+                    listId,
+                    getOne("products", "$ID = $prodId")[NAME]!!,
+                    amount + " " + getOne("products", "$ID = $prodId")[UNIT]!!
+                )
                 prodList.add(prod)
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
         return prodList
     }
 
-    fun deleteListProd(id: Int): Int{
+    fun deleteListProd(id: Int): Int {
         val db = this.writableDatabase
 
         val success = db.delete(TBL_LIST_PROD, "_id=" + id, null)
@@ -510,7 +538,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     //LISTS
     @SuppressLint("Range")
-    fun getNewestListId(): Int{
+    fun getNewestListId(): Int {
         val selectQuery = "SELECT $ID FROM $TBL_LISTS WHERE $EXECUTED = 0"
         val db = this.writableDatabase
 
@@ -519,7 +547,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return -1
@@ -546,7 +574,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         db.update(TBL_LISTS, contentValues, "_id=$newestList", null)
 
         contentValues.clear()
-        contentValues.put(ID, newestList+1)
+        contentValues.put(ID, newestList + 1)
         contentValues.put(EXECUTED, 0)
 
         val success = db.insert(TBL_LISTS, null, contentValues)
@@ -580,7 +608,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return arrayOf("")
@@ -588,11 +616,11 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         var fieldValue: String
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 fieldValue = cursor.getString(cursor.getColumnIndex(NAME))
                 valuesList = append(valuesList, fieldValue)
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
@@ -609,7 +637,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return ArrayList()
@@ -620,7 +648,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var unit: String
         var regular: Int
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(cursor.getColumnIndex(ID))
                 name = cursor.getString(cursor.getColumnIndex(NAME))
@@ -629,49 +657,49 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
                 val prod = ProductModel(id, name, unit, regular)
                 prodList.add(prod)
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
         return prodList
     }
 
-    fun getAverageProdBuy(id: Int): MutableMap<String, Long>{
+    fun getAverageProdBuy(id: Int): MutableMap<String, Long> {
         val listProdList = getAll(TBL_LIST_PROD, "$PROD_ID = $id")
         val listArray = arrayListOf<Int>()
         val amounts = mutableListOf<Long>()
-        for(prod in listProdList){
-            if(!prod[LIST_ID].isNullOrEmpty()){
+        for (prod in listProdList) {
+            if (!prod[LIST_ID].isNullOrEmpty()) {
                 listArray.add(prod[LIST_ID]!!.toInt())
                 amounts.add(prod[AMOUNT]!!.toLong())
             }
         }
-        val listArrayString = listArray.toString().replace('[','(').replace(']',')')
+        val listArrayString = listArray.toString().replace('[', '(').replace(']', ')')
         val oprArray = getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC")
         val dates = mutableListOf<Long>()
-        for (opr in oprArray){
+        for (opr in oprArray) {
             dates.add(opr[DATE]!!.toLong())
         }
         val dateDiff = arrayListOf<Long>()
         dates.forEachIndexed { index, l ->
-            if(index < dates.size - 1){
+            if (index < dates.size - 1) {
                 dateDiff.add(l - dates[index + 1])
             }
         }
         var sum: Long = 0
-        for (value in dateDiff){
+        for (value in dateDiff) {
             sum += value
         }
-        val avgTime = when(dateDiff.size){
+        val avgTime = when (dateDiff.size) {
             0 -> 0
             else -> (round((sum / dateDiff.size).toDouble() / 1000 / 3600 / 24)).toLong()
         }
 
         sum = 0
-        for (value in amounts){
+        for (value in amounts) {
             sum += value
         }
-        val avgAmount = when(amounts.size){
+        val avgAmount = when (amounts.size) {
             0 -> 0
             else -> sum / amounts.size
         }
@@ -682,20 +710,21 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun getLastBuyDate(id: Int): Long {
         val listProdList = getAll(TBL_LIST_PROD, "$PROD_ID = $id")
         val listArray = arrayListOf<Int>()
-        for(prod in listProdList){
-            if(!prod[LIST_ID].isNullOrEmpty()){
+        for (prod in listProdList) {
+            if (!prod[LIST_ID].isNullOrEmpty()) {
                 listArray.add(prod[LIST_ID]!!.toInt())
             }
         }
-        val listArrayString = listArray.toString().replace('[','(').replace(']',')')
-        val oprArray = getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC LIMIT 1")
-        return when(oprArray.size){
+        val listArrayString = listArray.toString().replace('[', '(').replace(']', ')')
+        val oprArray =
+            getAll(TBL_OPERATIONS, "$LIST_ID IN$listArrayString ORDER BY $DATE DESC LIMIT 1")
+        return when (oprArray.size) {
             0 -> 0
             else -> oprArray[0][DATE]!!.toLong()
         }
     }
 
-    fun updateProduct(prod: ProductModel): Int{
+    fun updateProduct(prod: ProductModel): Int {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(NAME, prod.name)
@@ -711,14 +740,18 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     fun deleteProduct(id: Int): Int {
         val db = this.writableDatabase
 
-        val success = db.delete(TBL_PRODUCTS, "$ID=" + id, null) * db.delete(TBL_LIST_PROD, "$PROD_ID=" + id, null)
+        val success = db.delete(TBL_PRODUCTS, "$ID=" + id, null) * db.delete(
+            TBL_LIST_PROD,
+            "$PROD_ID=" + id,
+            null
+        )
         db.close()
 
         return success
     }
 
     //REMINDERS
-    fun insertReminder(rmd: ReminderModel): Long{
+    fun insertReminder(rmd: ReminderModel): Long {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put("id", rmd.id)
@@ -745,7 +778,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return ArrayList()
@@ -758,7 +791,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var period: Int
         var time: Long
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 id = cursor.getInt(cursor.getColumnIndex("id"))
                 title = cursor.getString(cursor.getColumnIndex(TITLE))
@@ -769,7 +802,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
                 val rmd = ReminderModel(id, title, description, type, time, period)
                 rmdList.add(rmd)
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
@@ -815,7 +848,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         try {
             cursor = db.rawQuery(selectQuery, null)
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectQuery)
             return mutableMapOf()
@@ -824,13 +857,13 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         var key: String
         var value: String
         var config: MutableMap<String, String> = mutableMapOf()
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 key = cursor.getString(cursor.getColumnIndex(NAME))
                 value = cursor.getString(cursor.getColumnIndex(VALUE))
 
                 config[key] = value
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
 
         cursor.close()
@@ -839,7 +872,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
     }
 
     @SuppressLint("Range")
-    fun setConfig(balanceStr: String, currency: String): Int{
+    fun setConfig(balanceStr: String, currency: String): Int {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(VALUE, currency)
@@ -853,16 +886,16 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
         try {
             cursor = db.rawQuery(selectOperationsQuery, null)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             db.execSQL(selectOperationsQuery)
             return -1
         }
 
-        if (cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             do {
                 balance -= cursor.getDouble(cursor.getColumnIndex(COST))
-            }while (cursor.moveToNext())
+            } while (cursor.moveToNext())
         }
         cursor.close()
 

@@ -1,4 +1,4 @@
-package com.example.expensesmanager2
+package com.example.expensesmanager2.activities
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -8,22 +8,19 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.annotation.RequiresApi
 import androidx.core.view.isVisible
-import java.text.SimpleDateFormat
+import com.example.expensesmanager2.utils.AlertReceiver
+import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.ReminderModel
+import com.example.expensesmanager2.utils.SQLiteHelper
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjuster
 import java.time.temporal.TemporalAdjusters
 import java.util.*
-import kotlin.math.min
 import kotlin.random.Random
 
 class NewReminderActivity : AppCompatActivity() {

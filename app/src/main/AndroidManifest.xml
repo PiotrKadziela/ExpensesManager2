@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ExpensesManager2">
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,34 +20,34 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".activities.SettingsActivity"
             android:exported="false" />
         <activity
-            android:name=".StatisticsActivity"
+            android:name=".activities.StatisticsActivity"
             android:exported="false" />
         <activity
-            android:name=".RemindersActivity"
+            android:name=".activities.RemindersActivity"
             android:exported="false" />
         <activity
-            android:name=".NewReminderActivity"
+            android:name=".activities.NewReminderActivity"
             android:exported="false" />
         <activity
-            android:name=".ManageProductsActivity"
+            android:name=".activities.ManageProductsActivity"
             android:exported="false" />
         <activity
-            android:name=".AddProductActivity"
+            android:name=".activities.AddProductActivity"
             android:exported="false" />
         <activity
-            android:name=".ShoppingListActivity"
+            android:name=".activities.ShoppingListActivity"
             android:exported="false" />
         <activity
-            android:name=".OperationsActivity"
+            android:name=".activities.OperationsActivity"
             android:exported="false" />
         <activity
-            android:name=".AddOperationActivity"
+            android:name=".activities.AddOperationActivity"
             android:exported="false" />
 
-        <receiver android:name=".AlertReceiver" />
+        <receiver android:name=".utils.AlertReceiver" />
     </application>
 
 </manifest>
