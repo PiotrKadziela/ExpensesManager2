@@ -10,7 +10,7 @@
         android:id="@+id/txtHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SETTINGS"
+        android:text="@string/string_settings"
         android:layout_gravity="center_horizontal"
         android:gravity="center_vertical"
         android:layout_marginTop="20dp"

@@ -101,12 +101,12 @@ class StatisticsActivity : AppCompatActivity() {
 
         pieChart.setUsePercentValues(true)
         pieChart.description.isEnabled = false
-        pieChart.setHoleColor(Color.BLACK)
+        pieChart.setHoleColor(Color.WHITE)
         pieChart.setCenterTextSize(20F)
         val string = sql.getExpensesSumSince(0).toString().split('.')
         pieChart.centerText = if (string[1].length > 1)
-            sql.getExpensesSumSince(0).toString() else
-            sql.getExpensesSumSince(0).toString() + "0"
+            sql.getExpensesSumSince(0).toString() + " " + sql.getConfig()["currency"] else
+            sql.getExpensesSumSince(0).toString() + "0" + " " + sql.getConfig()["currency"]
 
 
 
@@ -137,7 +137,7 @@ class StatisticsActivity : AppCompatActivity() {
             colors.add(color)
         }
 
-        val dataSet = PieDataSet(entries, "Category")
+        val dataSet = PieDataSet(entries, "")
         dataSet.colors = colors
 
         val data = PieData(dataSet)

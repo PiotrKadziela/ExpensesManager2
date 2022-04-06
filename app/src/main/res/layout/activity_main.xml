@@ -26,7 +26,7 @@
             android:layout_below="@+id/ibMenu"
             android:layout_marginTop="-10dp"
             android:layout_marginLeft="10dp"
-            android:background="#444444"
+            android:background="#eee"
             android:visibility="invisible" />
 
         <LinearLayout

@@ -6,11 +6,22 @@
     android:layout_gravity="center"
     android:padding="20dp">
 
+    <TextView
+        android:id="@+id/txtHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ADD PRODUCT"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:textSize="20sp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="start">
+        android:gravity="start"
+        android:layout_marginTop="20dp">
 
         <Spinner
             android:id="@+id/spProduct"
@@ -19,6 +30,7 @@
             android:layout_weight="1" />
 
         <Button
+            android:textColor="@color/cardview_dark_background"
             android:id="@+id/btnNewProd"
             android:layout_width="50dp"
             android:layout_height="wrap_content"
@@ -28,20 +40,37 @@
             android:text="+" />
 
     </LinearLayout>
-
-    <EditText
-        android:id="@+id/etAmount"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/product_amount"
-        android:inputType="numberDecimal"
-        android:importantForAutofill="no" />
+        android:weightSum="5">
+
+        <EditText
+            android:id="@+id/etAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/product_amount"
+            android:inputType="numberDecimal"
+            android:importantForAutofill="no"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/txtUnit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:text="ml"
+            android:layout_gravity="center_vertical"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnAdd"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
         android:text="@string/add"/>
 
     <TextView

@@ -75,7 +75,11 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener{
                 }
             }
             if(diff +1 >= avg["time"]!! && !isOnList && prod.isBoughtRegularly == 1){
-                val lp = ListProdModel(0, sql.getNewestListId(), prod.name, avg["amount"]!!.toString())
+                val lp = ListProdModel(
+                    0,
+                    sql.getNewestListId(),
+                    prod.name,
+                    avg["amount"]!!.toString())
                 sql.insertListProd(lp)
             }
         }

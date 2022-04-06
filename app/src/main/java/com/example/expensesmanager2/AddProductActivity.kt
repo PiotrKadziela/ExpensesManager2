@@ -13,6 +13,7 @@ class AddProductActivity : AppCompatActivity() {
     lateinit var btnAdd: Button
     lateinit var etAmount: EditText
     lateinit var txtManageProducts: TextView
+    lateinit var txtUnit: TextView
     lateinit var sql: SQLiteHelper
 
     override fun onResume() {
@@ -52,6 +53,8 @@ class AddProductActivity : AppCompatActivity() {
             val intent = Intent(this, ManageProductsActivity::class.java)
             startActivity(intent)
         }
+
+        txtUnit.text = sql.getOne("products", "1 = 1")["unit"]
     }
 
     private fun addListProd() {
@@ -78,6 +81,7 @@ class AddProductActivity : AppCompatActivity() {
         spProduct = findViewById(R.id.spProduct)
         etAmount = findViewById(R.id.etAmount)
         txtManageProducts = findViewById(R.id.txtManageProducts)
+        txtUnit = findViewById(R.id.txtUnit)
     }
 
     private fun openNewProdDialog() {

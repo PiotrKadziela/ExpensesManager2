@@ -12,21 +12,24 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center_horizontal" />
+        android:gravity="center_horizontal"
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/txtUnit"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center_horizontal"/>
+        android:gravity="center_horizontal"
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/txtRegular"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:gravity="center_horizontal"/>
+        android:gravity="center_horizontal"
+        android:textSize="20sp"/>
 
     <TextView
         android:id="@+id/txtDelete"
@@ -34,6 +37,7 @@
         android:layout_height="wrap_content"
         android:text="X"
         android:layout_weight="1"
-        android:gravity="center_horizontal"/>
+        android:gravity="center_horizontal"
+        android:textSize="20sp"/>
 
 </LinearLayout>

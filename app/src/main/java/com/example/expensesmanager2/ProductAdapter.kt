@@ -1,10 +1,8 @@
 package com.example.expensesmanager2
 
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -15,7 +13,6 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
 
     fun addItems(items: ArrayList<ProductModel>){
         this.prodList = items
-        notifyDataSetChanged()
     }
 
     fun setOnClickItem(callback: (ProductModel) -> Unit){
@@ -27,7 +24,10 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ProductViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.card_item_prod, parent, false)
+        LayoutInflater.from(parent.context).inflate(
+            R.layout.card_item_prod,
+            parent,
+            false)
     )
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {

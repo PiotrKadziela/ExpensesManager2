@@ -34,7 +34,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        txtBalance.text = sql.getBalance().toString()
+        val string = sql.getBalance().toString().split('.')
+        txtBalance.text = if (string[1].length > 1)
+            sql.getBalance().toString() else
+            sql.getBalance().toString() + "0"
         txtCurrency.text = sql.getConfig()["currency"]
         lvMenu.isVisible = false
     }

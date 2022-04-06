@@ -18,7 +18,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
 
     companion object{
 
-        private const val DATABASE_VERSION = 38
+        private const val DATABASE_VERSION = 40
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
         private const val TBL_CONFIG = "configuration"
@@ -40,7 +40,7 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
         private const val PROD_ID = "prod_id"
         private const val AMOUNT = "amount"
         private const val DATE = "date"
-        private const val REGULAR = "isRegularlyBought"
+        private const val REGULAR = "regular"
         private const val TIME = "time"
         private const val DESCRIPTION = "description"
         private const val PERIOD = "period_id"
@@ -98,7 +98,9 @@ class SQLiteHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, 
                 "$ID INTEGER PRIMARY KEY, " +
                 "$LIST_ID INTEGER, " +
                 "$PROD_ID INTEGER, " +
-                "$AMOUNT NUMERIC)")
+                "$AMOUNT NUMERIC," +
+                " FOREIGN KEY(" + LIST_ID + ") REFERENCES " + TBL_LISTS + "(" + ID + ")," +
+                " FOREIGN KEY(" + LIST_ID + ") REFERENCES " + TBL_LISTS + "(" + ID + "))")
         db?.execSQL(createTblListProd)
 
         //REMINDERS TABLE

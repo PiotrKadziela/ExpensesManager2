@@ -53,7 +53,11 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
         @SuppressLint("SetTextI18n")
         fun bindView(opr: OperationModel){
             title.text = opr.title
-            cost.text = opr.cost.toString() + " " + sql.getConfig()["currency"]
+
+            val string = sql.getBalance().toString().split('.')
+            cost.text = if (string[1].length > 1)
+                opr.cost.toString() + " " + sql.getConfig()["currency"] else
+                opr.cost.toString() + "0" + " " + sql.getConfig()["currency"]
             if(opr.cost.toInt() < 0){
                 cost.setTextColor(Color.RED)
             } else{

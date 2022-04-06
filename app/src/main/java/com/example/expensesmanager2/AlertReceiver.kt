@@ -36,7 +36,8 @@ class AlertReceiver : BroadcastReceiver() {
             i.putExtra("period", period)
             i.putExtra("title", title)
             i.putExtra("desc", desc)
-            val pendingIntent = PendingIntent.getBroadcast(context, id, i, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent
+                .getBroadcast(context, id, i, PendingIntent.FLAG_UPDATE_CURRENT)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
             alarmManager!!.setExact(AlarmManager.RTC, c.timeInMillis, pendingIntent)
             sql.updateReminderTime(id, c.timeInMillis)
@@ -60,7 +61,10 @@ class AlertReceiver : BroadcastReceiver() {
                 description = descriptionText
             }
 
-            val notificationManager: NotificationManager = getSystemService(context, NotificationManager::class.java) as NotificationManager
+            val notificationManager: NotificationManager = getSystemService(
+                context,
+                NotificationManager::class.java
+            ) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
 

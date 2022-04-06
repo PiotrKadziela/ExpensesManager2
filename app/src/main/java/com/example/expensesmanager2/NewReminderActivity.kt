@@ -83,8 +83,7 @@ class NewReminderActivity : AppCompatActivity() {
             periodId = spPeriod.selectedItemPosition
             intent.putExtra("period", periodId)
             time = when(periodId) {
-                0 -> setNextDayOfWeek()
-                1 -> setNextDayOfWeek()
+                0, 1 -> setNextDayOfWeek()
                 else -> setNextDayOfMonth()
             }
             val pendingIntent = PendingIntent.getBroadcast(this, id, intent, 0)
@@ -98,12 +97,9 @@ class NewReminderActivity : AppCompatActivity() {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
         }
 
-        val f = SimpleDateFormat("dd/MM/yyyy hh:mm")
         Toast.makeText(this, "Reminder set", Toast.LENGTH_SHORT).show()
-        Log.e("EEEE", f.format(time))
         val rmd = ReminderModel(id, title, desc, type, time, periodId)
         sql.insertReminder(rmd)
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
