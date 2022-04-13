@@ -69,14 +69,14 @@ class ManageProductsActivity : AppCompatActivity() {
         builder.setMessage("Is the product bought regularly?")
         builder.setCancelable(true)
         builder.setPositiveButton("YES"){dialog, _ ->
-            val prod = ProductModel(id, name, unit, 1)
-            sql.updateProduct(prod)
+            val prod = ProductModel(this, id, name, unit, 1)
+            prod.update()
             getProducts()
             dialog.dismiss()
         }
         builder.setNegativeButton("NO"){dialog, _ ->
-            val prod = ProductModel(id, name, unit, 0)
-            sql.updateProduct(prod)
+            val prod = ProductModel(this, id, name, unit, 0)
+            prod.update()
             getProducts()
             dialog.dismiss()
         }
@@ -87,7 +87,7 @@ class ManageProductsActivity : AppCompatActivity() {
     }
 
     private fun getProducts() {
-        val prodList = sql.getProducts()
+        val prodList = ProductModel(this).get()
         adapter?.addItems(prodList)
     }
 
@@ -96,7 +96,7 @@ class ManageProductsActivity : AppCompatActivity() {
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)
         builder.setPositiveButton("YES"){dialog, _ ->
-            sql.deleteProduct(id)
+            ProductModel(this).delete("_id=$id")
             getProducts()
             Toast.makeText(this, "Product deleted!", Toast.LENGTH_SHORT).show()
             dialog.dismiss()

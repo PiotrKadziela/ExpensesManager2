@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.expensesmanager2.models.ListProdModel
 import com.example.expensesmanager2.models.ProductModel
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.ListModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 
 class AddProductActivity : AppCompatActivity() {
@@ -23,12 +24,7 @@ class AddProductActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val products = sql.getAllProductsNames()
-        spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, products)
-        spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+        initProductsList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,12 +34,7 @@ class AddProductActivity : AppCompatActivity() {
         sql = SQLiteHelper(this)
         initView()
 
-        val products = sql.getAllProductsNames()
-        spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, products)
-        spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+        initProductsList()
 
         btnNewProd.setOnClickListener {
             openNewProdDialog()
@@ -58,15 +49,33 @@ class AddProductActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        txtUnit.text = sql.getOne("products", "1 = 1")["unit"]
+        val unit = if(ProductModel(this).get().size > 0){
+            ProductModel(this).get()[0].unit
+        } else {
+            ""
+        }
+        txtUnit.text = unit
+    }
+
+    private fun initProductsList(){
+        val products = ProductModel(this).get()
+        val productsNames: MutableList<String> = mutableListOf()
+        for (prod in products){
+            productsNames.add(prod.name)
+        }
+        spProduct.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, productsNames)
+        spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
     }
 
     private fun addListProd() {
-        val product = spProduct.selectedItem.toString()
+        val product = ProductModel(this).get("name = \"${spProduct.selectedItem}\"")[0]
         val amount = etAmount.text.toString()
-        val list = sql.getNewestListId()
-        val lp = ListProdModel(0, list, product, amount)
-        val status = sql.insertListProd(lp)
+        val list = ListModel(this).getNewestListId()
+        val lp = ListProdModel(this, 0, list, product.id, amount.toDouble())
+        val status = lp.insert()
 
         if (status > -1){
             Toast.makeText(this, "Product added!", Toast.LENGTH_SHORT).show()
@@ -127,17 +136,12 @@ class AddProductActivity : AppCompatActivity() {
     }
 
     private fun addProduct(name: String, unit: String, regular: Int) {
-        val prod = ProductModel(0, name, unit, regular)
-        val status = sql.insertProduct(prod)
+        val prod = ProductModel(this, 0, name, unit, regular)
+        val status = prod.insert()
 
         if (status > -1){
             Toast.makeText(this@AddProductActivity, "Product added!", Toast.LENGTH_SHORT).show()
-            val products = sql.getAllProductsNames()
-            spProduct.adapter = ArrayAdapter(this@AddProductActivity, android.R.layout.simple_list_item_1, products)
-            spProduct.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
+            initProductsList()
         } else{
             Toast.makeText(this@AddProductActivity, "Insert failed!", Toast.LENGTH_SHORT).show()
         }

@@ -12,8 +12,8 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.text.isDigitsOnly
 import androidx.core.view.isVisible
-import com.example.expensesmanager2.models.OperationModel
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.*
 import com.example.expensesmanager2.utils.SQLiteHelper
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,24 +46,23 @@ class AddOperationActivity : AppCompatActivity() {
 
         val isEdit = intent.getStringExtra("edit")
 
-        if(isEdit == "true"){
+        if (isEdit == "true") {
             loadEditView()
-        }
-        else {
+        } else {
             loadAddView()
         }
 
         var options = ArrayList<String>()
         rgType.setOnCheckedChangeListener { _, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
-            if(radioButton.id == R.id.rbIncome){
+            if (radioButton.id == R.id.rbIncome) {
                 spCategory.setEnabled(false)
                 etCost.hint = "Value"
                 options.add("Income")
             } else {
                 spCategory.isEnabled = true
                 etCost.hint = "Cost"
-                for(cat in sql.getAllCategories()){
+                for (cat in CategoryModel(this).get("_id != 0")) {
                     options.add(cat.name)
                 }
             }
@@ -76,45 +75,43 @@ class AddOperationActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun loadAddView() {
         rbExpense.isChecked = true
-        if(intent.getIntExtra("oprList", 0) != 0){
+        if (intent.getIntExtra("oprList", 0) != 0) {
             rbExpense.isEnabled = false
             rbIncome.isEnabled = false
         }
         btnEdit.isVisible = false
-        etCost.addTextChangedListener(object: TextWatcher{
+        etCost.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val costString = etCost.text.toString()
                 val splitedCost = costString.split('.')
                 val costDecimals = splitedCost.last()
-                if(costDecimals.length > 2 && splitedCost.size > 1){
+                if (costDecimals.length > 2 && splitedCost.size > 1) {
                     val decimalCost: Double = costString.toDouble()
-                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    val roundedCost: String = (floor(decimalCost * 100) / 100).toString()
                     etCost.setText(roundedCost)
                     etCost.setSelection(etCost.text.length)
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
 
         })
         btnAdd.setOnClickListener {
-            if(etTitle.text.toString().length < 3){
+            if (etTitle.text.toString().length < 3) {
                 txtError.setText("Too short title!")
-            }
-            else if(etTitle.text.toString().isDigitsOnly()) {
+            } else if (etTitle.text.toString().isDigitsOnly()) {
                 txtError.setText("Title cannot be a number!")
-            }
-            else if(etCost.text.toString().toDouble() <= 0) {
+            } else if (etCost.text.toString().toDouble() <= 0) {
                 txtError.setText("Cost has to be bigger than 0!")
-            }
-            else {
+            } else {
                 addOperation()
             }
         }
         val date = SimpleDateFormat("MM/dd/yyyy")
         txtDate.text = date.format(System.currentTimeMillis())
         val options = ArrayList<String>()
-        for (cat in sql.getAllCategories()){
+        for (cat in CategoryModel(this).get("_id != 0")) {
             options.add(cat.name)
         }
         loadCategoriesSpinner(options)
@@ -122,40 +119,38 @@ class AddOperationActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n", "SimpleDateFormat")
     private fun loadEditView() {
-        if(intent.getIntExtra("oprList", 0) != 0){
+        if (intent.getIntExtra("oprList", 0) != 0) {
             rbExpense.isEnabled = false
             rbIncome.isEnabled = false
         }
         btnAdd.isVisible = false
         txtHeader.setText(resources.getString(R.string.edit_activity_header))
         setFieldsValues()
-        etCost.addTextChangedListener(object: TextWatcher{
+        etCost.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val costString = etCost.text.toString()
                 val splitedCost = costString.split('.')
                 val costDecimals = splitedCost.last()
-                if(costDecimals.length > 2 && splitedCost.size > 1){
+                if (costDecimals.length > 2 && splitedCost.size > 1) {
                     val decimalCost: Double = costString.toDouble()
-                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    val roundedCost: String = (floor(decimalCost * 100) / 100).toString()
                     etCost.setText(roundedCost)
                     etCost.setSelection(etCost.text.length)
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
 
         })
         btnEdit.setOnClickListener {
-            if(etTitle.text.toString().length < 3){
+            if (etTitle.text.toString().length < 3) {
                 txtError.text = "Too short title!"
-            }
-            else if(etTitle.text.toString().isDigitsOnly()) {
+            } else if (etTitle.text.toString().isDigitsOnly()) {
                 txtError.setText("Title cannot be a number!")
-            }
-            else if(etCost.text.toString().toDouble() <= 0) {
+            } else if (etCost.text.toString().toDouble() <= 0) {
                 txtError.setText("Cost has to be bigger than 0!")
-            }
-            else {
+            } else {
                 updateOperation()
             }
         }
@@ -166,7 +161,7 @@ class AddOperationActivity : AppCompatActivity() {
     private fun setFieldsValues() {
         val title = intent.getStringExtra("oprTitle")
         var cost = intent.getDoubleExtra("oprCost", 0.0)
-        if(cost < 0) {
+        if (cost < 0) {
             cost *= -1
         }
         val category = intent.getStringExtra("oprCategory")
@@ -174,20 +169,19 @@ class AddOperationActivity : AppCompatActivity() {
 
         val options = ArrayList<String>()
 
-        when (type){
+        when (type) {
             1 -> options.add("Income")
             else -> {
-                for(cat in sql.getAllCategories()){
+                for (cat in CategoryModel(this).get("_id != 0")) {
                     options.add(cat.name)
                 }
             }
         }
         loadCategoriesSpinner(options)
 
-        if(type == 0){
+        if (type == 0) {
             rbExpense.isChecked = true
-        }
-        else{
+        } else {
             rbIncome.isChecked = true
         }
         etTitle.setText(title)
@@ -195,29 +189,36 @@ class AddOperationActivity : AppCompatActivity() {
         spCategory.setSelection(options.indexOf(category))
         val list = intent.getIntExtra("oprList", 0)
         var listString = ""
-        if(list != 0){
+        if (list != 0) {
             listString += "SHOPPING LIST:\n\n"
-            val prodList = sql.getAllListProd(list)
+            val prodList = ListProdModel(this).get("list_id = $list")
 
             if (prodList.size > 0) {
                 for (prod in prodList) {
-                    listString += "- " + prod.name + " " + prod.amount + "\n"
+                    listString += "- " +
+                            ProductModel(this).get("_id = ${prod.prod_id}")[0].name +
+                            " " + prod.amount + "\n"
                 }
-            }
-
-            else{
+            } else {
                 listString += "All products from this\nlist have been deleted\nform database"
             }
         }
 
         txtShoppingList.text = listString
-        txtCurrency.text = sql.getConfig()["currency"]
+        txtCurrency.text = ConfigModel(this).get("currency")
     }
 
     private fun loadCategoriesSpinner(options: ArrayList<String>) {
         spCategory.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, options)
-        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
+        spCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+            }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
@@ -228,28 +229,31 @@ class AddOperationActivity : AppCompatActivity() {
         val id = intent.getIntExtra("oprId", 0)
         val type = getTypeID()
         val date = intent.getLongExtra("oprDate", 0)
-        val list = sql.getOne("operations", "_id = $id")["list_id"]?.toInt()
-        val category = when (type){
+        val list = OperationModel(this).get("_id = $id")[0].listId
+        val category = when (type) {
             0 -> spCategory.selectedItemPosition + 1
             else -> 0
         }
 
-        if(type == 0 && cost > 0 || type == 1 && cost < 0){
+        if (type == 0 && cost > 0 || type == 1 && cost < 0) {
             cost *= -1
         }
 
         val opr = OperationModel(this, id, title, cost, category, type, list, date)
-        sql.updateOperation(opr)
+        if (opr.update() > -1) {
+            Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Operation edit failed!", Toast.LENGTH_SHORT).show()
+        }
         val intentList = Intent(this, OperationsActivity::class.java)
         startActivity(intentList)
         finish()
-        Toast.makeText(this, "Operation edited!", Toast.LENGTH_SHORT).show()
     }
 
     private fun getTypeID(): Int {
         val selectedOption: Int = rgType.checkedRadioButtonId
         val radioButton: RadioButton = findViewById(selectedOption)
-        val type = when (radioButton.text){
+        val type = when (radioButton.text) {
             "Expense" -> 0
             "Income" -> 1
             else -> 0
@@ -266,7 +270,7 @@ class AddOperationActivity : AppCompatActivity() {
         val type = getTypeID()
         val date = System.currentTimeMillis()
 
-        if(type == 0){
+        if (type == 0) {
             cost *= -1
         } else {
             category = 0
@@ -277,14 +281,15 @@ class AddOperationActivity : AppCompatActivity() {
         val opr = OperationModel(this, 0, title, cost, category, type, list, date)
         val status = opr.insert()
 
-        if (status > -1){
+        if (status > -1) {
             Toast.makeText(this, "Operation added!", Toast.LENGTH_SHORT).show()
-        } else{
+        } else {
             Toast.makeText(this, "Insert failed!", Toast.LENGTH_SHORT).show()
         }
 
-        sql.startNewList()
-        intent.getIntegerArrayListExtra("oprProds", )?.let { sql.updateListProd(it) }
+        ListModel(this).startNewList()
+        intent.getIntegerArrayListExtra("oprProds")
+            ?.let { ListProdModel(this).passUnbuyedProducts(it) }
         val intent = Intent(this, OperationsActivity::class.java)
         startActivity(intent)
         finish()

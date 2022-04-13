@@ -8,6 +8,9 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.CategoryModel
+import com.example.expensesmanager2.models.ConfigModel
+import com.example.expensesmanager2.models.OperationModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Legend
@@ -103,10 +106,10 @@ class StatisticsActivity : AppCompatActivity() {
         pieChart.description.isEnabled = false
         pieChart.setHoleColor(Color.WHITE)
         pieChart.setCenterTextSize(20F)
-        val string = sql.getExpensesSumSince(0).toString().split('.')
+        val string = OperationModel(this).getExpensesSum(0).toString().split('.')
         pieChart.centerText = if (string[1].length > 1)
-            sql.getExpensesSumSince(0).toString() + " " + sql.getConfig()["currency"] else
-            sql.getExpensesSumSince(0).toString() + "0" + " " + sql.getConfig()["currency"]
+            OperationModel(this).getExpensesSum(0).toString() + " " + ConfigModel(this).get("currency") else
+            OperationModel(this).getExpensesSum(0).toString() + "0" + " " + ConfigModel(this).get("currency")
 
 
 
@@ -122,9 +125,9 @@ class StatisticsActivity : AppCompatActivity() {
     private fun loadPieChartData(since: Long) {
         val entries = ArrayList<PieEntry>()
 
-        for (cat in sql.getAllCategories()){
-            if(sql.getCategorySummary(cat.id, since) > 0 && cat.id != 0)
-                entries.add(PieEntry(sql.getCategorySummary(cat.id, since), cat.name))
+        for (cat in CategoryModel(this).get()){
+            if(cat.getSum(since) > 0 && cat.id != 0)
+                entries.add(PieEntry(cat.getSum(since), cat.name))
         }
 
         val colors = ArrayList<Int>()

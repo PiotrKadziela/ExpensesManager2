@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expensesmanager2.models.OperationModel
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.CategoryModel
+import com.example.expensesmanager2.models.ConfigModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 
 class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHolder>() {
@@ -56,16 +58,16 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
         fun bindView(opr: OperationModel){
             title.text = opr.title
 
-            val string = sql.getBalance().toString().split('.')
+            val string = ConfigModel(view.context).get("balance").split('.')
             cost.text = if (string[1].length > 1)
-                opr.cost.toString() + " " + sql.getConfig()["currency"] else
-                opr.cost.toString() + "0" + " " + sql.getConfig()["currency"]
+                opr.cost.toString() + " " + ConfigModel(view.context).get("currency") else
+                opr.cost.toString() + "0" + " " + ConfigModel(view.context).get("currency")
             if(opr.cost.toInt() < 0){
                 cost.setTextColor(Color.RED)
             } else{
                 cost.setTextColor(Color.GREEN)
             }
-            category.text = opr.category.toString()
+            category.text = CategoryModel(view.context, opr.category).name
         }
     }
 }

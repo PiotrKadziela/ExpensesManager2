@@ -54,7 +54,7 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
         @RequiresApi(Build.VERSION_CODES.O)
         fun bindView(rmd: ReminderModel){
             title.text = rmd.title
-            period.text = when(rmd.periodId){
+            period.text = when(rmd.period_id){
                 0 -> "Weekly"
                 1 -> "Every 2 weeks"
                 2 -> "Monthly"

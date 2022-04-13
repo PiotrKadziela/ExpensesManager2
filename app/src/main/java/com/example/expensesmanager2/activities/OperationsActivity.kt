@@ -57,7 +57,7 @@ class OperationsActivity : AppCompatActivity() {
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)
         builder.setPositiveButton("YES"){dialog, _ ->
-            sql.deleteOperation(id)
+            OperationModel(this).delete("_id=$id")
             getOperations()
             Toast.makeText(this, "Operation deleted!", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
@@ -71,7 +71,7 @@ class OperationsActivity : AppCompatActivity() {
     }
 
     private fun getOperations() {
-        val oprList = OperationModel(this).getAll()
+        val oprList = OperationModel(this).get()
 
         adapter?.addItems(oprList)
     }

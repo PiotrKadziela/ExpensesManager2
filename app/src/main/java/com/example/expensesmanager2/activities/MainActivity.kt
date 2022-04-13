@@ -6,11 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.ConfigModel
+import com.example.expensesmanager2.models.OperationModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 import kotlin.math.floor
 
@@ -27,11 +30,11 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        val string = sql.getBalance().toString().split('.')
+        val string = ConfigModel(this).get("balance").split('.')
         txtBalance.text = if (string[1].length > 1)
-            sql.getBalance().toString() else
-            sql.getBalance().toString() + "0"
-        txtCurrency.text = sql.getConfig()["currency"]
+            ConfigModel(this).get("balance") else
+            ConfigModel(this).get("balance") + "0"
+        txtCurrency.text = ConfigModel(this).get("currency")
         lvMenu.isVisible = false
     }
 
@@ -43,25 +46,25 @@ class MainActivity : AppCompatActivity() {
         sql = SQLiteHelper(this)
         initView()
 
-        btnAdd.setOnClickListener{
+        btnAdd.setOnClickListener {
             val intent = Intent(this, AddOperationActivity::class.java)
             intent.putExtra("edit", "false")
             startActivity(intent)
         }
 
-        btnShow.setOnClickListener{
+        btnShow.setOnClickListener {
             val intent = Intent(this, OperationsActivity::class.java)
             startActivity(intent)
         }
 
-        btnShoppingList.setOnClickListener{
+        btnShoppingList.setOnClickListener {
             val intent = Intent(this, ShoppingListActivity::class.java)
             startActivity(intent)
         }
 
-        val balance = sql.getBalance()
+        val balance = ConfigModel(this).get("balance").toDouble()
 
-        if(balance == 0.0 && sql.getAllOperations().size == 0){
+        if (balance == 0.0 && OperationModel(this).get().size == 0) {
             setStartingBalance()
         }
 
@@ -72,7 +75,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lvMenu.setOnItemClickListener { _, view, position, _ ->
-            when(position){
+            when (position) {
                 0 -> {
                     val intent = Intent(this, ManageProductsActivity::class.java)
                     startActivity(intent)
@@ -101,31 +104,42 @@ class MainActivity : AppCompatActivity() {
         val etStartingBalance = dialogLayout.findViewById<EditText>(R.id.etStartingBalance)
         val etCurrency = dialogLayout.findViewById<EditText>(R.id.etCurrency)
 
-        with(builder){
+        with(builder) {
             setTitle("Hello!")
-            setPositiveButton("OK"){_, _ ->
-                if(sql.insertConfig(etStartingBalance.text.toString(), etCurrency.text.toString()) > -1){
-                    txtBalance.text = sql.getConfig()["balance"]
-                    txtCurrency.text = sql.getConfig()["currency"]
+            setPositiveButton("OK") { _, _ ->
+                if (ConfigModel(
+                        this@MainActivity,
+                        "balance",
+                        etStartingBalance.text.toString()
+                    ).insert() > -1 &&
+                    ConfigModel(
+                        this@MainActivity,
+                        "currency",
+                        etCurrency.text.toString()
+                    ).insert() > -1
+                ) {
+                    txtBalance.text = ConfigModel(this@MainActivity).get("balance")
+                    txtCurrency.text = ConfigModel(this@MainActivity).get("currency")
                 }
             }
             setView(dialogLayout)
             show()
         }
 
-        etStartingBalance.addTextChangedListener(object: TextWatcher{
+        etStartingBalance.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val balanceString = etStartingBalance.text.toString()
                 val splitedBalance = balanceString.split('.')
                 val balanceDecimals = splitedBalance.last()
-                if(balanceDecimals.length > 2 && splitedBalance.size > 1){
+                if (balanceDecimals.length > 2 && splitedBalance.size > 1) {
                     val decimalCost: Double = balanceString.toDouble()
-                    val roundedCost: String = (floor(decimalCost * 100 ) / 100).toString()
+                    val roundedCost: String = (floor(decimalCost * 100) / 100).toString()
                     etStartingBalance.setText(roundedCost)
                     etStartingBalance.setSelection(etStartingBalance.text.length)
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
 
         })
@@ -141,7 +155,8 @@ class MainActivity : AppCompatActivity() {
         lvMenu = findViewById(R.id.lvMenu)
 
         val menuArray = arrayListOf<String>("Products", "Reminders", "Statistics", "Settings")
-        val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray)
+        val arrayAdapter =
+            ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray)
 
         lvMenu.adapter = arrayAdapter
     }

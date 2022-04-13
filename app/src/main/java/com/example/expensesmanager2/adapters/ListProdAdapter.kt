@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.expensesmanager2.interfaces.ListProdListener
 import com.example.expensesmanager2.models.ListProdModel
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.ProductModel
 
 class ListProdAdapter(
     val context: Context,
@@ -63,8 +64,8 @@ class ListProdAdapter(
 
 
         fun bindView(prod: ListProdModel) {
-            name.text = prod.name
-            amount.text = prod.amount
+            name.text = ProductModel(view.context).get("_id = ${prod.prod_id}")[0].name
+            amount.text = prod.amount.toString()
         }
     }
 }

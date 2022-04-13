@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.expensesmanager2.utils.AlertReceiver
 import com.example.expensesmanager2.R
 import com.example.expensesmanager2.adapters.ReminderAdapter
+import com.example.expensesmanager2.models.ReminderModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 
 class RemindersActivity : AppCompatActivity() {
@@ -41,7 +42,7 @@ class RemindersActivity : AppCompatActivity() {
 
         adapter?.setOnClickDeleteItem { deleteReminder(it.id)}
 
-        sql.deleteOutdatedReminders(System.currentTimeMillis())
+        ReminderModel(this).delete("type = 1 AND time < ${System.currentTimeMillis()}")
     }
 
     private fun deleteReminder(id: Int) {
@@ -49,7 +50,7 @@ class RemindersActivity : AppCompatActivity() {
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)
         builder.setPositiveButton("YES"){dialog, _ ->
-            sql.deleteReminder(id)
+            ReminderModel(this).delete("_id=$id")
             unsetReminder(id)
             getReminders()
             Toast.makeText(this, "Reminder deleted!", Toast.LENGTH_SHORT).show()
@@ -77,7 +78,7 @@ class RemindersActivity : AppCompatActivity() {
     }
 
     private fun getReminders() {
-        val rmdList = sql.getAllReminders()
+        val rmdList = ReminderModel(this).get()
 
         adapter?.addItems(rmdList)
     }

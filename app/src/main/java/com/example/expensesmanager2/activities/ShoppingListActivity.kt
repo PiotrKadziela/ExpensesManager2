@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.expensesmanager2.*
 import com.example.expensesmanager2.adapters.ListProdAdapter
 import com.example.expensesmanager2.interfaces.ListProdListener
+import com.example.expensesmanager2.models.ListModel
 import com.example.expensesmanager2.models.ListProdModel
+import com.example.expensesmanager2.models.ProductModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 
 class ShoppingListActivity : AppCompatActivity(), ListProdListener {
@@ -37,8 +39,8 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener {
             if (selectedProducts.isEmpty()) {
                 Toast.makeText(this, "No product selected!", Toast.LENGTH_SHORT).show()
             } else {
-                val newestListId = sql.getNewestListId()
-                val listProdArray = sql.getAllListProd(newestListId)
+                val newestListId = ListModel(this).getNewestListId()
+                val listProdArray = ListProdModel(this).get("list_id = $newestListId")
                 val listProdIds = ArrayList<Int>()
 
                 for (prod in listProdArray) {
@@ -59,39 +61,43 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener {
     }
 
     private fun addProducts() {
-        val products = sql.getProducts()
-        val currentListProd = sql.getAllListProd(sql.getNewestListId())
+        val products = ProductModel(this).get()
+        val currentListProd = ListProdModel(this).get(
+            "list_id = ${ListModel(this).getNewestListId()}"
+        )
 
         for (prod in products) {
             if (prod.isBoughtRegularly == 0) {
                 continue
             }
-            val avg = sql.getAverageProdBuy(prod.id)
+            val avg = prod.getAverageValues()
             if (avg["time"]!!.toInt() < 1 || avg["amount"]!!.toInt() < 1) {
                 continue
             }
-            val lastBuy = sql.getLastBuyDate(prod.id)
+            val lastBuy = prod.getLastBuyDate()
             val diff = (System.currentTimeMillis() - lastBuy) / 1000 / 3600 / 24
             var isOnList = false
             for (product in currentListProd) {
-                if (product.name == prod.name) {
+                if (product.prod_id == prod.id) {
                     isOnList = true
                 }
             }
             if (diff + 1 >= avg["time"]!! && !isOnList && prod.isBoughtRegularly == 1) {
                 val lp = ListProdModel(
+                    this,
                     0,
-                    sql.getNewestListId(),
-                    prod.name,
-                    avg["amount"]!!.toString()
+                    ListModel(this).getNewestListId(),
+                    prod.id,
+                    avg["amount"]!!.toDouble()
                 )
-                sql.insertListProd(lp)
+                lp.insert()
             }
         }
     }
 
     private fun getProducts(): ArrayList<ListProdModel> {
-        val prodList = sql.getAllListProd(sql.getNewestListId())
+        val prodList = ListProdModel(this).get(
+            "list_id = ${ListModel(this).getNewestListId()}")
         adapter?.addItems(prodList)
 
         return prodList
@@ -102,7 +108,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener {
         builder.setMessage("Are You sure?")
         builder.setCancelable(true)
         builder.setPositiveButton("YES") { dialog, _ ->
-            sql.deleteListProd(id)
+            ListProdModel(this).delete("_id = $id")
             getProducts()
             Toast.makeText(this, "Product deleted!", Toast.LENGTH_SHORT).show()
             initRecyclerView()

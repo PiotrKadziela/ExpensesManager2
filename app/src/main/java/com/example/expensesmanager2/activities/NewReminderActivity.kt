@@ -95,8 +95,8 @@ class NewReminderActivity : AppCompatActivity() {
         }
 
         Toast.makeText(this, "Reminder set", Toast.LENGTH_SHORT).show()
-        val rmd = ReminderModel(id, title, desc, type, time, periodId)
-        sql.insertReminder(rmd)
+        val rmd = ReminderModel(this, id, title, desc, type, time, periodId)
+        rmd.insert()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

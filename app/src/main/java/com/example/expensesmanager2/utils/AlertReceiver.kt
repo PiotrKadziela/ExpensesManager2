@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.models.ReminderModel
 import java.util.*
 
 class AlertReceiver : BroadcastReceiver() {
@@ -41,9 +42,11 @@ class AlertReceiver : BroadcastReceiver() {
                 .getBroadcast(context, id, i, PendingIntent.FLAG_UPDATE_CURRENT)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager?
             alarmManager!!.setExact(AlarmManager.RTC, c.timeInMillis, pendingIntent)
-            sql.updateReminderTime(id, c.timeInMillis)
+            val reminderModel = ReminderModel(context).get("_id=$id")[0]
+            reminderModel.time = c.timeInMillis
+            reminderModel.update()
         } else {
-            sql.deleteReminder(id)
+            ReminderModel(context).delete("_id=$id")
         }
     }
 
