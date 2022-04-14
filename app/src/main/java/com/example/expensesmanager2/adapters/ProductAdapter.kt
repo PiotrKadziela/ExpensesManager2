@@ -8,20 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.expensesmanager2.models.ProductModel
 import com.example.expensesmanager2.R
 
-class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
+class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
     private var prodList: ArrayList<ProductModel> = ArrayList()
     private var onClickItem: ((ProductModel) -> Unit)? = null
     private var onClickDeleteItem: ((ProductModel) -> Unit)? = null
 
-    fun addItems(items: ArrayList<ProductModel>){
+    fun addItems(items: ArrayList<ProductModel>) {
         this.prodList = items
     }
 
-    fun setOnClickItem(callback: (ProductModel) -> Unit){
+    fun setOnClickItem(callback: (ProductModel) -> Unit) {
         this.onClickItem = callback
     }
 
-    fun setOnClickDeleteItem(callback: (ProductModel) -> Unit){
+    fun setOnClickDeleteItem(callback: (ProductModel) -> Unit) {
         this.onClickDeleteItem = callback
     }
 
@@ -29,7 +29,8 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
         LayoutInflater.from(parent.context).inflate(
             R.layout.card_item_prod,
             parent,
-            false)
+            false
+        )
     )
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
@@ -43,18 +44,18 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>(){
         return prodList.size
     }
 
-    class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view){
+    class ProductViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name = view.findViewById<TextView>(R.id.txtName)
         val unit = view.findViewById<TextView>(R.id.txtUnit)
         val regular = view.findViewById<TextView>(R.id.txtRegular)
         val delete = view.findViewById<TextView>(R.id.txtDelete)
 
-        fun bindView(prod: ProductModel){
+        fun bindView(prod: ProductModel) {
             name.text = prod.name
             unit.text = prod.unit
-            if(prod.isBoughtRegularly == 0){
+            if (prod.isBoughtRegularly == 0) {
                 regular.text = "NO"
-            } else{
+            } else {
                 regular.text = "YES"
             }
         }

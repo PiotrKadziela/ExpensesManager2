@@ -12,12 +12,13 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.example.expensesmanager2.R
+import com.example.expensesmanager2.interfaces.ActivityInterface
 import com.example.expensesmanager2.models.ConfigModel
 import com.example.expensesmanager2.models.OperationModel
 import com.example.expensesmanager2.utils.SQLiteHelper
 import kotlin.math.floor
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ActivityInterface {
     private lateinit var btnAdd: Button
     private lateinit var btnShow: Button
     private lateinit var btnShoppingList: Button
@@ -29,8 +30,38 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        loadView()
+    }
 
-        val string = ConfigModel(this).get("balance").split('.')
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        sql = SQLiteHelper(this)
+
+        initView()
+        loadView()
+        setListeners()
+    }
+
+    override fun initView() {
+        btnAdd = findViewById(R.id.btnAdd)
+        btnShow = findViewById(R.id.btnShow)
+        btnShoppingList = findViewById(R.id.btnShoppingList)
+        txtBalance = findViewById(R.id.txtBalance)
+        txtCurrency = findViewById(R.id.txtCurrency)
+        ibMenu = findViewById(R.id.ibMenu)
+        lvMenu = findViewById(R.id.lvMenu)
+    }
+
+    override fun loadView() {
+        val menuArray = arrayListOf("Products", "Reminders", "Statistics", "Settings")
+        val arrayAdapter =
+            ArrayAdapter(this, android.R.layout.simple_list_item_1, menuArray)
+        lvMenu.adapter = arrayAdapter
+        val balance = ConfigModel(this).get("balance").toDouble()
+        if (balance == 0.0 && OperationModel(this).get().size == 0) setStartingBalance()
+        val string = balance.toString().split('.')
         txtBalance.text = if (string[1].length > 1)
             ConfigModel(this).get("balance") else
             ConfigModel(this).get("balance") + "0"
@@ -38,43 +69,17 @@ class MainActivity : AppCompatActivity() {
         lvMenu.isVisible = false
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun setListeners() {
+        setBottomMenuListeners()
+        setTopMenuListeners()
+    }
 
-        sql = SQLiteHelper(this)
-        initView()
-
-        btnAdd.setOnClickListener {
-            val intent = Intent(this, AddOperationActivity::class.java)
-            intent.putExtra("edit", "false")
-            startActivity(intent)
-        }
-
-        btnShow.setOnClickListener {
-            val intent = Intent(this, OperationsActivity::class.java)
-            startActivity(intent)
-        }
-
-        btnShoppingList.setOnClickListener {
-            val intent = Intent(this, ShoppingListActivity::class.java)
-            startActivity(intent)
-        }
-
-        val balance = ConfigModel(this).get("balance").toDouble()
-
-        if (balance == 0.0 && OperationModel(this).get().size == 0) {
-            setStartingBalance()
-        }
-
-        txtBalance.text = balance.toString()
-
+    private fun setTopMenuListeners() {
         ibMenu.setOnClickListener {
             lvMenu.isVisible = !lvMenu.isVisible
         }
 
-        lvMenu.setOnItemClickListener { _, view, position, _ ->
+        lvMenu.setOnItemClickListener { _, _, position, _ ->
             when (position) {
                 0 -> {
                     val intent = Intent(this, ManageProductsActivity::class.java)
@@ -89,11 +94,28 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 else -> {
-
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                 }
             }
+        }
+    }
+
+    private fun setBottomMenuListeners() {
+        btnAdd.setOnClickListener {
+            val intent = Intent(this, AddOperationActivity::class.java)
+            intent.putExtra("edit", false)
+            startActivity(intent)
+        }
+
+        btnShow.setOnClickListener {
+            val intent = Intent(this, OperationsActivity::class.java)
+            startActivity(intent)
+        }
+
+        btnShoppingList.setOnClickListener {
+            val intent = Intent(this, ShoppingListActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -122,12 +144,18 @@ class MainActivity : AppCompatActivity() {
                     txtCurrency.text = ConfigModel(this@MainActivity).get("currency")
                 }
             }
+
             setView(dialogLayout)
             show()
         }
 
+        setStartingBalanceListeners(etStartingBalance)
+    }
+
+    private fun setStartingBalanceListeners(etStartingBalance: EditText) {
         etStartingBalance.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun afterTextChanged(s: Editable?) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val balanceString = etStartingBalance.text.toString()
                 val splitedBalance = balanceString.split('.')
@@ -139,25 +167,6 @@ class MainActivity : AppCompatActivity() {
                     etStartingBalance.setSelection(etStartingBalance.text.length)
                 }
             }
-
-            override fun afterTextChanged(s: Editable?) {}
-
         })
-    }
-
-    private fun initView() {
-        btnAdd = findViewById(R.id.btnAdd)
-        btnShow = findViewById(R.id.btnShow)
-        btnShoppingList = findViewById(R.id.btnShoppingList)
-        txtBalance = findViewById(R.id.txtBalance)
-        txtCurrency = findViewById(R.id.txtCurrency)
-        ibMenu = findViewById(R.id.ibMenu)
-        lvMenu = findViewById(R.id.lvMenu)
-
-        val menuArray = arrayListOf<String>("Products", "Reminders", "Statistics", "Settings")
-        val arrayAdapter =
-            ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, menuArray)
-
-        lvMenu.adapter = arrayAdapter
     }
 }

@@ -19,12 +19,12 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
     private var onClickItem: ((ReminderModel) -> Unit)? = null
     private var onClickDeleteItem: ((ReminderModel) -> Unit)? = null
 
-    fun addItems(items: ArrayList<ReminderModel>){
+    fun addItems(items: ArrayList<ReminderModel>) {
         this.rmdList = items
         notifyDataSetChanged()
     }
 
-    fun setOnClickDeleteItem(callback: (ReminderModel) -> Unit){
+    fun setOnClickDeleteItem(callback: (ReminderModel) -> Unit) {
         this.onClickDeleteItem = callback
     }
 
@@ -45,16 +45,16 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
     }
 
     class ReminderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title= view.findViewById<TextView>(R.id.tvTitle)
+        val title = view.findViewById<TextView>(R.id.tvTitle)
         val period = view.findViewById<TextView>(R.id.tvPeriod)
         val next = view.findViewById<TextView>(R.id.tvNext)
         var delete = view.findViewById<TextView>(R.id.tvDelete)
 
         @SuppressLint("SimpleDateFormat")
         @RequiresApi(Build.VERSION_CODES.O)
-        fun bindView(rmd: ReminderModel){
+        fun bindView(rmd: ReminderModel) {
             title.text = rmd.title
-            period.text = when(rmd.period_id){
+            period.text = when (rmd.period_id) {
                 0 -> "Weekly"
                 1 -> "Every 2 weeks"
                 2 -> "Monthly"
@@ -65,9 +65,8 @@ class ReminderAdapter : RecyclerView.Adapter<ReminderAdapter.ReminderViewHolder>
             val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
             val calendar = Calendar.getInstance()
             calendar.timeInMillis = rmd.time
-            next.text = if(rmd.type == 0)
+            next.text = if (rmd.type == 0)
                 "Next: " + formatter.format(calendar.time) else formatter.format(calendar.time)
-
         }
     }
 }

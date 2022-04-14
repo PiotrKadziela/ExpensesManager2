@@ -10,7 +10,7 @@ data class ProductModel(
     val name: String,
     val unit: String,
     val isBoughtRegularly: Int
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, 0, "", "", 0)
 
     private val sql = SQLiteHelper(context)

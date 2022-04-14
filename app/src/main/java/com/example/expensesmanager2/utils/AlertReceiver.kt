@@ -24,8 +24,7 @@ class AlertReceiver : BroadcastReceiver() {
         val desc = intent.getStringExtra("desc")
         val id = intent.getIntExtra("id", 0)
         displayNotification(context!!, title!!, desc!!)
-        val sql = SQLiteHelper(context)
-        if(period != 99) {
+        if (period != 99) {
             val c = Calendar.getInstance()
             when (period) {
                 0 -> c.add(Calendar.WEEK_OF_YEAR, 1)

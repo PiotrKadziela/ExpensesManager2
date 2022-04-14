@@ -16,7 +16,7 @@ import com.example.expensesmanager2.models.ProductModel
 class ListProdAdapter(
     val context: Context,
     val arrayList: ArrayList<Int>,
-    val listProdListener: ListProdListener
+    private val listProdListener: ListProdListener
 ) : RecyclerView.Adapter<ListProdAdapter.ListProdViewHolder>() {
     private var prodList: ArrayList<ListProdModel> = ArrayList()
     private var onClickItem: ((ListProdModel) -> Unit)? = null

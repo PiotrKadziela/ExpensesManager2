@@ -19,16 +19,16 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
     private var onClickItem: ((OperationModel) -> Unit)? = null
     private var onClickDeleteItem: ((OperationModel) -> Unit)? = null
 
-    fun addItems(items: ArrayList<OperationModel>){
+    fun addItems(items: ArrayList<OperationModel>) {
         this.oprList = items
         notifyDataSetChanged()
     }
 
-    fun setOnClickItem(callback: (OperationModel) -> Unit){
+    fun setOnClickItem(callback: (OperationModel) -> Unit) {
         this.onClickItem = callback
     }
 
-    fun setOnClickDeleteItem(callback: (OperationModel) -> Unit){
+    fun setOnClickDeleteItem(callback: (OperationModel) -> Unit) {
         this.onClickDeleteItem = callback
     }
 
@@ -47,7 +47,7 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
         return oprList.size
     }
 
-    class OperationViewHolder(var view: View): RecyclerView.ViewHolder(view){
+    class OperationViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
         var title = view.findViewById<TextView>(R.id.txtTitle)
         var cost = view.findViewById<TextView>(R.id.txtCost)
         var category = view.findViewById<TextView>(R.id.txtCategory)
@@ -55,16 +55,16 @@ class OperationAdapter : RecyclerView.Adapter<OperationAdapter.OperationViewHold
         val sql = SQLiteHelper(view.context)
 
         @SuppressLint("SetTextI18n")
-        fun bindView(opr: OperationModel){
+        fun bindView(opr: OperationModel) {
             title.text = opr.title
 
             val string = ConfigModel(view.context).get("balance").split('.')
             cost.text = if (string[1].length > 1)
                 opr.cost.toString() + " " + ConfigModel(view.context).get("currency") else
                 opr.cost.toString() + "0" + " " + ConfigModel(view.context).get("currency")
-            if(opr.cost.toInt() < 0){
+            if (opr.cost.toInt() < 0) {
                 cost.setTextColor(Color.RED)
-            } else{
+            } else {
                 cost.setTextColor(Color.GREEN)
             }
             category.text = CategoryModel(view.context, opr.category).name

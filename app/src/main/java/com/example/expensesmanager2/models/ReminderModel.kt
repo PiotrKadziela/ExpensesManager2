@@ -6,13 +6,13 @@ import com.example.expensesmanager2.utils.SQLiteHelper
 
 data class ReminderModel(
     val context: Context,
-    val id : Int,
+    val id: Int,
     val title: String,
     val description: String,
     val type: Int,
     var time: Long,
     val period_id: Int
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, 0, "", "", 0, 0, 0)
 
     private val sql = SQLiteHelper(context)

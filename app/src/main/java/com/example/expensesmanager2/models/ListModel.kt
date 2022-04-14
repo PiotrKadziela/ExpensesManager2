@@ -8,7 +8,7 @@ data class ListModel(
     val context: Context,
     val id: Int,
     val executed: Int
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, 0, 0)
 
     val sql = SQLiteHelper(context)

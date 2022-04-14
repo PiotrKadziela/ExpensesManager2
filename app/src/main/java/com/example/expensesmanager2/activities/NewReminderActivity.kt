@@ -25,18 +25,18 @@ import kotlin.random.Random
 
 class NewReminderActivity : AppCompatActivity() {
 
-    private lateinit var etTitle : EditText
-    private lateinit var etDesc : EditText
-    private lateinit var rgType : RadioGroup
-    private lateinit var rbPeriodically : RadioButton
-    private lateinit var rbOnce : RadioButton
-    private lateinit var spPeriod : Spinner
-    private lateinit var spDay : Spinner
-    private lateinit var llPeriod : LinearLayout
-    private lateinit var llDay : LinearLayout
-    private lateinit var dpDate : DatePicker
-    private lateinit var tpTime : TimePicker
-    private lateinit var btnSet : Button
+    private lateinit var etTitle: EditText
+    private lateinit var etDesc: EditText
+    private lateinit var rgType: RadioGroup
+    private lateinit var rbPeriodically: RadioButton
+    private lateinit var rbOnce: RadioButton
+    private lateinit var spPeriod: Spinner
+    private lateinit var spDay: Spinner
+    private lateinit var llPeriod: LinearLayout
+    private lateinit var llDay: LinearLayout
+    private lateinit var dpDate: DatePicker
+    private lateinit var tpTime: TimePicker
+    private lateinit var btnSet: Button
     private lateinit var sql: SQLiteHelper
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -68,7 +68,7 @@ class NewReminderActivity : AppCompatActivity() {
         val desc = etDesc.text.toString()
         val type = getTypeID()
         val time: Long
-        val periodId : Int
+        val periodId: Int
         val id = Random.nextInt()
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(this, AlertReceiver::class.java)
@@ -76,10 +76,10 @@ class NewReminderActivity : AppCompatActivity() {
         intent.putExtra("desc", desc)
         intent.putExtra("id", id)
 
-        if(type == 0) {
+        if (type == 0) {
             periodId = spPeriod.selectedItemPosition
             intent.putExtra("period", periodId)
-            time = when(periodId) {
+            time = when (periodId) {
                 0, 1 -> setNextDayOfWeek()
                 else -> setNextDayOfMonth()
             }
@@ -101,23 +101,23 @@ class NewReminderActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setNextDayOfMonth(): Long {
-        val monthsCount = when(spPeriod.selectedItemPosition){
+        val monthsCount = when (spPeriod.selectedItemPosition) {
             2 -> 1
             3 -> 2
             else -> 3
         }
         val calendar = Calendar.getInstance()
-        val day = when(spDay.selectedItemPosition){
+        val day = when (spDay.selectedItemPosition) {
             28 -> calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
             else -> spDay.selectedItemPosition + 1
         }
         calendar.set(Calendar.DAY_OF_MONTH, day)
         calendar.set(Calendar.HOUR_OF_DAY, tpTime.hour)
         calendar.set(Calendar.MINUTE, tpTime.minute)
-        if(calendar.timeInMillis > System.currentTimeMillis()){
+        if (calendar.timeInMillis > System.currentTimeMillis()) {
             return calendar.timeInMillis
 
-        }else {
+        } else {
             calendar.add(Calendar.MONTH, monthsCount)
             return calendar.timeInMillis
         }
@@ -127,10 +127,12 @@ class NewReminderActivity : AppCompatActivity() {
     private fun setNextDayOfWeek(): Long {
         val date = LocalDate.now()
         val nextReminderDate =
-            if(date.dayOfWeek == DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())) date
+            if (date.dayOfWeek == DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())) date
             else date.with(
-                    TemporalAdjusters.next(
-                        DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())))
+                TemporalAdjusters.next(
+                    DayOfWeek.valueOf(spDay.selectedItem.toString().uppercase())
+                )
+            )
 
         val calendar = Calendar.getInstance()
         calendar.set(
@@ -138,7 +140,8 @@ class NewReminderActivity : AppCompatActivity() {
             nextReminderDate.monthValue - 1,
             nextReminderDate.dayOfMonth,
             tpTime.hour,
-            tpTime.minute)
+            tpTime.minute
+        )
 
         return calendar.timeInMillis
     }
@@ -146,7 +149,7 @@ class NewReminderActivity : AppCompatActivity() {
     private fun getTypeID(): Int {
         val selectedOption: Int = rgType.checkedRadioButtonId
         val radioButton: RadioButton = findViewById(selectedOption)
-        val type = when (radioButton.id){
+        val type = when (radioButton.id) {
             R.id.rbPeriodically -> 0
             R.id.rbOnce -> 1
             else -> 0
@@ -180,32 +183,53 @@ class NewReminderActivity : AppCompatActivity() {
         )
 
         spPeriod.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, periodsArray)
-        spPeriod.onItemSelectedListener = object : OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        spPeriod.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 initDaySpinner(position != 0 && position != 1)
 
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
     }
 
-    private fun initDaySpinner(numbers: Boolean){
+    private fun initDaySpinner(numbers: Boolean) {
         var daysArray = arrayListOf<String>()
-        if(numbers){
+        if (numbers) {
             var nr = 1
-            do{
+            do {
                 daysArray.add(nr.toString())
                 nr++
-            }while (nr < 29)
+            } while (nr < 29)
             daysArray.add("Last")
         } else {
-            daysArray = arrayListOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+            daysArray = arrayListOf(
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            )
         }
 
         spDay.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, daysArray)
-        spDay.onItemSelectedListener = object : OnItemSelectedListener{
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {}
+        spDay.onItemSelectedListener = object : OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+            }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }

@@ -18,7 +18,6 @@ class SQLiteHelper(val context: Context?) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-
         private const val DATABASE_VERSION = 41
         private const val DATABASE_NAME = "expensesManager.db"
         private const val TBL_OPERATIONS = "operations"
@@ -45,7 +44,6 @@ class SQLiteHelper(val context: Context?) :
         private const val TIME = "time"
         private const val DESCRIPTION = "description"
         private const val PERIOD = "period_id"
-
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -178,7 +176,7 @@ class SQLiteHelper(val context: Context?) :
         val db = this.writableDatabase
         val contentValues = ContentValues()
 
-        for (field in fields)  if (field.key != ID) contentValues.put(field.key, field.value)
+        for (field in fields) if (field.key != ID) contentValues.put(field.key, field.value)
 
         return db.update(table, contentValues, whereClause, null)
     }

@@ -49,7 +49,7 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener {
                     }
                 }
                 val intent = Intent(this, AddOperationActivity::class.java)
-                intent.putExtra("edit", "false")
+                intent.putExtra("edit", false)
                 intent.putExtra("oprList", newestListId)
                 intent.putExtra("oprProds", listProdIds)
                 startActivity(intent)
@@ -97,7 +97,8 @@ class ShoppingListActivity : AppCompatActivity(), ListProdListener {
 
     private fun getProducts(): ArrayList<ListProdModel> {
         val prodList = ListProdModel(this).get(
-            "list_id = ${ListModel(this).getNewestListId()}")
+            "list_id = ${ListModel(this).getNewestListId()}"
+        )
         adapter?.addItems(prodList)
 
         return prodList

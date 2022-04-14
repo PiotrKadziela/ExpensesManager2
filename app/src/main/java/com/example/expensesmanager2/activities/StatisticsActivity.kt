@@ -27,11 +27,11 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class StatisticsActivity : AppCompatActivity() {
-    private lateinit var btnWeek : Button
-    private lateinit var btnMonth : Button
-    private lateinit var btnAll : Button
-    private lateinit var pieChart : PieChart
-    private lateinit var sql : SQLiteHelper
+    private lateinit var btnWeek: Button
+    private lateinit var btnMonth: Button
+    private lateinit var btnAll: Button
+    private lateinit var pieChart: PieChart
+    private lateinit var sql: SQLiteHelper
     private val activeButtonColor = Color.parseColor("#FF000B41")
     private val inactiveButtonColor = Color.parseColor("#FF112BBD")
 
@@ -108,9 +108,10 @@ class StatisticsActivity : AppCompatActivity() {
         pieChart.setCenterTextSize(20F)
         val string = OperationModel(this).getExpensesSum(0).toString().split('.')
         pieChart.centerText = if (string[1].length > 1)
-            OperationModel(this).getExpensesSum(0).toString() + " " + ConfigModel(this).get("currency") else
-            OperationModel(this).getExpensesSum(0).toString() + "0" + " " + ConfigModel(this).get("currency")
-
+            OperationModel(this).getExpensesSum(0)
+                .toString() + " " + ConfigModel(this).get("currency") else
+            OperationModel(this).getExpensesSum(0)
+                .toString() + "0" + " " + ConfigModel(this).get("currency")
 
 
         val legend = pieChart.legend
@@ -125,18 +126,18 @@ class StatisticsActivity : AppCompatActivity() {
     private fun loadPieChartData(since: Long) {
         val entries = ArrayList<PieEntry>()
 
-        for (cat in CategoryModel(this).get()){
-            if(cat.getSum(since) > 0 && cat.id != 0)
+        for (cat in CategoryModel(this).get()) {
+            if (cat.getSum(since) > 0 && cat.id != 0)
                 entries.add(PieEntry(cat.getSum(since), cat.name))
         }
 
         val colors = ArrayList<Int>()
 
-        for(color in ColorTemplate.MATERIAL_COLORS){
+        for (color in ColorTemplate.MATERIAL_COLORS) {
             colors.add(color)
         }
 
-        for(color in ColorTemplate.VORDIPLOM_COLORS){
+        for (color in ColorTemplate.VORDIPLOM_COLORS) {
             colors.add(color)
         }
 

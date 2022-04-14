@@ -9,7 +9,7 @@ data class ConfigModel(
     val context: Context,
     val name: String,
     val value: String
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, "", "")
 
     val sql = SQLiteHelper(context)
@@ -22,9 +22,9 @@ data class ConfigModel(
     fun get(name: String = ""): String {
         val configArray = arrayListOf<ConfigModel>()
         for (row in sql.get(tableName, "name = \"$name\"")) {
-            if(row["name"] == "balance"){
+            if (row["name"] == "balance") {
                 var balance = row["value"]!!.toDouble()
-                for(operation in OperationModel(context).get()){
+                for (operation in OperationModel(context).get()) {
                     balance += operation.cost
                 }
                 return balance.toString()

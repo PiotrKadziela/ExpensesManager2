@@ -9,7 +9,7 @@ data class CategoryModel(
     val context: Context,
     val id: Int,
     var name: String
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, 0, "")
     constructor(context: Context, id: Int) : this(context, id, "") {
         this.name = this.get("_id=${this.id}")[0].name

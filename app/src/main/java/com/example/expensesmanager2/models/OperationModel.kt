@@ -13,7 +13,7 @@ data class OperationModel(
     val type: Int,
     val listId: Int?,
     val date: Long,
-): ModelInterface {
+) : ModelInterface {
     constructor(context: Context) : this(context, 0, "", 0.0, 0, 0, 0, 0)
 
     private val sql = SQLiteHelper(context)
@@ -59,7 +59,7 @@ data class OperationModel(
         return sql.update(tableName, fieldsMap, "_id = ${this.id}")
     }
 
-    fun getExpensesSum(since: Long): Float{
+    fun getExpensesSum(since: Long): Float {
         val operations = sql.get(
             tableName,
             "date > $since"
